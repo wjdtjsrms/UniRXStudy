@@ -12,4 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1679f8e2c96aaa4487cde500f14cb72, type: 3}
   m_Name: KingActionSO
   m_EditorClassIdentifier: 
-  npcType: 0
+  npcType: 1
+  actionDatas:
+  - actionType: 2
+    key: StandUp
+    triggers: []
+  - actionType: 1
+    key: narration_king.mp3
+    triggers: []
+  - actionType: 2
+    key: StandDown
+    triggers: []
