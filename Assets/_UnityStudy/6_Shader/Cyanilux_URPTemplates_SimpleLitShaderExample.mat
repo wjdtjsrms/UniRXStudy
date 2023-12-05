@@ -19,7 +19,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -49,12 +49,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaTestToggle: 1
-    - _Amount: 0
+    - _Amount: 1
     - _Cutoff: 0
     - _Emission: 1
     - _GlossSource: 0
     - _NormalMapToggle: 1
-    - _Smoothness: 0
+    - _Smoothness: 0.027
     - _SpecGlossMapToggle: 0
     m_Colors:
     - _BaseColor: {r: 0.9150943, g: 0.9150943, b: 0.9150943, a: 1}
