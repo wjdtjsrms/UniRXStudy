@@ -18,12 +18,16 @@ struct Interpolators
 TEXTURE2D(_ColorMap);
 SAMPLER(sampler_ColorMap);
 
+TEXTURE2D(_DissolveTexture);
+SAMPLER(sampler_DissolveTexture);
+
 CBUFFER_START(UnityPerMaterial)
 
 	float4 _ColorTint;
 	float4 _ColorMap_ST;
+	float4 _DissolveTexture_ST;
 	float _Smoothness;
-	
+	float _Amount;
 CBUFFER_END
 
 Interpolators Vertex(Attributes input)

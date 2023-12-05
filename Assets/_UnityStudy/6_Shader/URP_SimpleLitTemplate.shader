@@ -27,6 +27,9 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 		_SpecGlossMap("Specular Map", 2D) = "white" {}
 		[Toggle(_GLOSSINESS_FROM_BASE_ALPHA)] _GlossSource ("Glossiness Source, from Albedo Alpha (if on) vs from Specular (if off)", Float) = 0
 		_Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
+		
+		_DissolveTexture("Dissolve Texutre", 2D) = "white" {} 
+		_Amount("Amount", Range(0,1)) = 0
 	}
 	SubShader {
 		Tags {
@@ -45,14 +48,23 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 		float4 _SpecColor;
 		float _Cutoff;
 		float _Smoothness;
+		float4 _DissolveTexture_ST;
+		float _Amount;
 		CBUFFER_END
 		ENDHLSL
 
+	Pass {
+        ZWrite On
+        ColorMask 0
+    }
+
 		Pass {
 			Name "ForwardLit"
-			Tags { "LightMode"="UniversalForward" }
-
+			Tags { "LightMode"="UniversalForward" "RenderType"= "Transparent" "Queue" = "Transparent" }
+			
+			Blend SrcAlpha OneMinusSrcAlpha
 			HLSLPROGRAM
+			#pragma alpha:blend
 			#pragma vertex LitPassVertex
 			#pragma fragment LitPassFragment
 
@@ -137,6 +149,7 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 			// Textures, Samplers & Global Properties
 			// (note, BaseMap, BumpMap and EmissionMap is being defined by the SurfaceInput.hlsl include)
 			TEXTURE2D(_SpecGlossMap); 	SAMPLER(sampler_SpecGlossMap);
+			TEXTURE2D(_DissolveTexture); 	SAMPLER(sampler_DissolveTexture);
 
 			// Functions
 			half4 SampleSpecularSmoothness(float2 uv, half alpha, half4 specColor, TEXTURE2D_PARAM(specMap, sampler_specMap)) {
@@ -229,7 +242,7 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 				inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
 				inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUV);
 			}
-
+			
 			// Vertex Shader
 			Varyings LitPassVertex(Attributes IN) {
 				Varyings OUT;
@@ -289,6 +302,12 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 				SurfaceData surfaceData;
 				InitalizeSurfaceData(IN, surfaceData);
 
+				#ifdef _ALPHATEST_ON
+					float dissolve_value = SAMPLE_TEXTURE2D(_DissolveTexture, sampler_DissolveTexture, IN.uv).r;					
+					clip(dissolve_value - _Amount);
+					surfaceData.emission = float3(1,1,1) * step(dissolve_value - _Amount, 0.05f);
+				#endif
+				
 				// Setup InputData
 				InputData inputData;
 				InitializeInputData(IN, surfaceData.normalTS, inputData);
@@ -300,7 +319,11 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 				// https://github.com/Unity-Technologies/Graphics/blob/master/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl
 
 				color.rgb = MixFog(color.rgb, inputData.fogCoord);
-				//color.a = OutputAlpha(color.a, _Surface);
+				color.a = 1;				
+				
+				// float dissolve_value = SAMPLE_TEXTURE2D(_DissolveTexture, sampler_DissolveTexture, IN.uv).r;
+				// if(dissolve_value - _Amount >= 0)
+					// color.a = 0;
 				return color;
 			}
 			ENDHLSL
@@ -383,20 +406,20 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
 
-			// Note if we do any vertex displacement, we'll need to change the vertex function. e.g. :
+			// note if we do any vertex displacement, we'll need to change the vertex function. e.g. :
 			/*
-			#pragma vertex DisplacedDepthOnlyVertex (instead of DepthOnlyVertex above)
+			#pragma vertex displaceddepthonlyvertex (instead of depthonlyvertex above)
 			
-			Varyings DisplacedDepthOnlyVertex(Attributes input) {
-				Varyings output = (Varyings)0;
-				UNITY_SETUP_INSTANCE_ID(input);
-				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+			varyings displaceddepthonlyvertex(attributes input) {
+				varyings output = (varyings)0;
+				unity_setup_instance_id(input);
+				unity_initialize_vertex_output_stereo(output);
 				
-				// Example Displacement
-				input.positionOS += float4(0, _SinTime.y, 0, 0);
+				// example displacement
+				input.positionos += float4(0, _sintime.y, 0, 0);
 				
-				output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
-				output.positionCS = TransformObjectToHClip(input.position.xyz);
+				output.uv = transform_tex(input.texcoord, _basemap);
+				output.positioncs = transformobjecttohclip(input.position.xyz);
 				return output;
 			}
 			*/

@@ -6,6 +6,9 @@ Shader "Jsg/MyLit"
 		[MainTexture] _ColorMap("Color", 2D) = "white" {}
         [MainColor] _ColorTint("Tint", Color) = (1, 1, 1, 1)
 		_Smoothness("Smoothness", float) = 1
+		
+		_DissolveTexture("Dissolve Texture", 2D) = "white" {}
+		_Amount("Amount", Range(0,1)) = 0
     }
     SubShader
     {
