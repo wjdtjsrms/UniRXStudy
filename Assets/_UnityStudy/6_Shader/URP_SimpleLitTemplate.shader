@@ -52,19 +52,17 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 		float _Amount;
 		CBUFFER_END
 		ENDHLSL
-
-	Pass {
-        ZWrite On
-        ColorMask 0
-    }
+		
+		Pass {
+			ZWrite On
+			ColorMask 0
+		}
 
 		Pass {
 			Name "ForwardLit"
-			Tags { "LightMode"="UniversalForward" "RenderType"= "Transparent" "Queue" = "Transparent" }
-			
-			Blend SrcAlpha OneMinusSrcAlpha
+			Tags { "LightMode"="UniversalForward" }
+
 			HLSLPROGRAM
-			#pragma alpha:blend
 			#pragma vertex LitPassVertex
 			#pragma fragment LitPassFragment
 
@@ -150,7 +148,7 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 			// (note, BaseMap, BumpMap and EmissionMap is being defined by the SurfaceInput.hlsl include)
 			TEXTURE2D(_SpecGlossMap); 	SAMPLER(sampler_SpecGlossMap);
 			TEXTURE2D(_DissolveTexture); 	SAMPLER(sampler_DissolveTexture);
-
+			
 			// Functions
 			half4 SampleSpecularSmoothness(float2 uv, half alpha, half4 specColor, TEXTURE2D_PARAM(specMap, sampler_specMap)) {
 				half4 specularSmoothness = half4(0.0h, 0.0h, 0.0h, 1.0h);
@@ -242,7 +240,7 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 				inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
 				inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUV);
 			}
-			
+
 			// Vertex Shader
 			Varyings LitPassVertex(Attributes IN) {
 				Varyings OUT;
@@ -307,23 +305,19 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 					clip(dissolve_value - _Amount);
 					surfaceData.emission = float3(1,1,1) * step(dissolve_value - _Amount, 0.05f);
 				#endif
-				
+
 				// Setup InputData
 				InputData inputData;
 				InitializeInputData(IN, surfaceData.normalTS, inputData);
 
 				// Simple Lighting (Lambert & BlinnPhong)
-				half4 color = UniversalFragmentPBR(inputData, surfaceData); // v12 only
+				half4 color = UniversalFragmentBlinnPhong(inputData, surfaceData); // v12 only
 				//half4 color = UniversalFragmentBlinnPhong(inputData, surfaceData.albedo, half4(surfaceData.specular, 1), surfaceData.smoothness, surfaceData.emission, surfaceData.alpha);
 				// See Lighting.hlsl to see how this is implemented.
 				// https://github.com/Unity-Technologies/Graphics/blob/master/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl
 
 				color.rgb = MixFog(color.rgb, inputData.fogCoord);
-				color.a = 1;				
-				
-				// float dissolve_value = SAMPLE_TEXTURE2D(_DissolveTexture, sampler_DissolveTexture, IN.uv).r;
-				// if(dissolve_value - _Amount >= 0)
-					// color.a = 0;
+				//color.a = OutputAlpha(color.a, _Surface);
 				return color;
 			}
 			ENDHLSL
@@ -406,20 +400,20 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
 
-			// note if we do any vertex displacement, we'll need to change the vertex function. e.g. :
+			// Note if we do any vertex displacement, we'll need to change the vertex function. e.g. :
 			/*
-			#pragma vertex displaceddepthonlyvertex (instead of depthonlyvertex above)
+			#pragma vertex DisplacedDepthOnlyVertex (instead of DepthOnlyVertex above)
 			
-			varyings displaceddepthonlyvertex(attributes input) {
-				varyings output = (varyings)0;
-				unity_setup_instance_id(input);
-				unity_initialize_vertex_output_stereo(output);
+			Varyings DisplacedDepthOnlyVertex(Attributes input) {
+				Varyings output = (Varyings)0;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 				
-				// example displacement
-				input.positionos += float4(0, _sintime.y, 0, 0);
+				// Example Displacement
+				input.positionOS += float4(0, _SinTime.y, 0, 0);
 				
-				output.uv = transform_tex(input.texcoord, _basemap);
-				output.positioncs = transformobjecttohclip(input.position.xyz);
+				output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+				output.positionCS = TransformObjectToHClip(input.position.xyz);
 				return output;
 			}
 			*/
