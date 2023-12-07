@@ -1,4 +1,4 @@
-Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
+Shader "Custom/CleanDissolve" {
 	Properties {
 		[MainTexture] _BaseMap("Base Map (RGB) Smoothness / Alpha (A)", 2D) = "white" {}
 		[MainColor]   _BaseColor("Base Color", Color) = (1, 1, 1, 1)
@@ -6,20 +6,11 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 		[Toggle(_NORMALMAP)] _NormalMapToggle ("Normal Mapping", Float) = 0
 		[NoScaleOffset] _BumpMap("Normal Map", 2D) = "bump" {}
 
-		[HDR] _EmissionColor("Emission Color", Color) = (0,0,0)
-		[Toggle(_EMISSION)] _Emission ("Emission", Float) = 0
-		[NoScaleOffset]_EmissionMap("Emission Map", 2D) = "white" {}
-
 		[Toggle(_ALPHATEST_ON)] _AlphaTestToggle ("Alpha Clipping", Float) = 0
 		_Cutoff ("Alpha Cutoff", Float) = 0.5
-
-		[Toggle(_SPECGLOSSMAP)] _SpecGlossMapToggle ("Use Specular Gloss Map", Float) = 0
-		_SpecColor("Specular Color", Color) = (0.5, 0.5, 0.5, 0.5)
-		_SpecGlossMap("Specular Map", 2D) = "white" {}
-		[Toggle(_GLOSSINESS_FROM_BASE_ALPHA)] _GlossSource ("Glossiness Source, from Albedo Alpha (if on) vs from Specular (if off)", Float) = 0
-		_Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
-		
+	
 		_DissolveTexture("Dissolve Texutre", 2D) = "white" {} 
+		[HDR] _DissolveColor("Emission Color", Color) = (0,0,0)
 		_Amount("Amount", Range(0,1)) = 0
 	}
 	SubShader {
@@ -35,10 +26,9 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 		CBUFFER_START(UnityPerMaterial)
 		float4 _BaseMap_ST;
 		float4 _BaseColor;
-		float4 _EmissionColor;
+		float4 _DissolveColor;
 		float4 _SpecColor;
 		float _Cutoff;
-		float _Smoothness;
 		float4 _DissolveTexture_ST;
 		float _Amount;
 		CBUFFER_END
@@ -87,15 +77,11 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 
 			// Material Keywords
 			#pragma shader_feature_local _NORMALMAP
-			#pragma shader_feature_local_fragment _EMISSION
 			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 			//#pragma shader_feature_local_fragment _SURFACE_TYPE_TRANSPARENT
 			#pragma shader_feature_local_fragment _ALPHATEST_ON
 			#pragma shader_feature_local_fragment _ALPHAPREMULTIPLY_ON
-			//#pragma shader_feature_local_fragment _ _SPECGLOSSMAP _SPECULAR_COLOR
-			#pragma shader_feature_local_fragment _ _SPECGLOSSMAP
-			#define _SPECULAR_COLOR // always on
-			#pragma shader_feature_local_fragment _GLOSSINESS_FROM_BASE_ALPHA
+
 
 			// Includes
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -136,6 +122,8 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
 					float4 shadowCoord 				: TEXCOORD7;
 				#endif
+				
+				float2 dissolveUV		    		: TEXCOORD8;				
 
 				float4 color						: COLOR;
 			};
@@ -179,12 +167,21 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 				half4 diffuse = baseMap * _BaseColor * IN.color;
 				surfaceData.albedo = diffuse.rgb;
 				surfaceData.normalTS = SampleNormal(IN.uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap));
-				surfaceData.emission = SampleEmission(IN.uv, _EmissionColor.rgb, TEXTURE2D_ARGS(_EmissionMap, sampler_EmissionMap));
-				surfaceData.occlusion = 1.0; // unused
+				surfaceData.emission = 0.0;
+				surfaceData.occlusion = 1.0;
+				
+				// Setup Dissolve
+				#ifdef _ALPHATEST_ON
+					float dissolve_value = SAMPLE_TEXTURE2D(_DissolveTexture, sampler_DissolveTexture, IN.dissolveUV).r;
+					float amountOneMinus = 1 - _Amount;
+					
+					clip(dissolve_value - amountOneMinus);
+					surfaceData.emission =  _DissolveColor.rgb * smoothstep(dissolve_value - amountOneMinus, 1.0f, amountOneMinus);
+				#endif
 
 				half4 specular = SampleSpecularSmoothness(IN.uv, diffuse.a, _SpecColor, TEXTURE2D_ARGS(_SpecGlossMap, sampler_SpecGlossMap));
 				surfaceData.specular = specular.rgb;
-				surfaceData.smoothness = specular.a * _Smoothness;
+				surfaceData.smoothness = specular.a * 0.1;
 			}
 
 			void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData) {
@@ -213,25 +210,6 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 					inputData.shadowCoord = float4(0, 0, 0, 0);
 				#endif
 
-				// Fog
-				#ifdef _ADDITIONAL_LIGHTS_VERTEX
-					inputData.fogCoord = input.fogFactorAndVertexLight.x;
-					inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
-				#else
-					inputData.fogCoord = input.fogFactor;
-					inputData.vertexLighting = half3(0, 0, 0);
-				#endif
-
-				/* in v11/v12?, could use :
-				#ifdef _ADDITIONAL_LIGHTS_VERTEX
-					inputData.fogCoord = InitializeInputDataFog(float4(inputData.positionWS, 1.0), input.fogFactorAndVertexLight.x);
-					inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
-				#else
-					inputData.fogCoord = InitializeInputDataFog(float4(inputData.positionWS, 1.0), input.fogFactor);
-					inputData.vertexLighting = half3(0, 0, 0);
-				#endif
-				*/
-
 				inputData.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH, inputData.normalWS);
 				inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
 				inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUV);
@@ -240,10 +218,6 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 			// Vertex Shader
 			Varyings LitPassVertex(Attributes IN) {
 				Varyings OUT;
-
-				//UNITY_SETUP_INSTANCE_ID(IN);
-				//UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
-				//UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
 				VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
 				#ifdef _NORMALMAP
@@ -266,7 +240,6 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 					OUT.bitangentWS = half4(normalInputs.bitangentWS, viewDirWS.z);
 				#else
 					OUT.normalWS = NormalizeNormalPerVertex(normalInputs.normalWS);
-					//OUT.viewDirWS = viewDirWS;
 				#endif
 
 				OUTPUT_LIGHTMAP_UV(IN.lightmapUV, unity_LightmapST, OUT.lightmapUV);
@@ -283,27 +256,16 @@ Shader "Cyanilux/URPTemplates/SimpleLitShaderExample" {
 				#endif
 
 				OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+				OUT.dissolveUV = TRANSFORM_TEX(IN.uv, _DissolveTexture);
 				OUT.color = IN.color;
 				return OUT;
 			}
 
 			// Fragment Shader
 			float4 LitPassFragment(Varyings IN) : SV_Target {
-				//UNITY_SETUP_INSTANCE_ID(IN);
-				//UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
-
 				// Setup SurfaceData
 				SurfaceData surfaceData;
 				InitalizeSurfaceData(IN, surfaceData);
-
-				// Setup Dissolve
-				#ifdef _ALPHATEST_ON
-					float dissolve_value = SAMPLE_TEXTURE2D(_DissolveTexture, sampler_DissolveTexture, IN.uv).r;
-					float amountOneMinus = 1 - _Amount;
-					
-					clip(dissolve_value - amountOneMinus);
-					surfaceData.emission = _EmissionColor * smoothstep(dissolve_value - amountOneMinus, 1.0 , amountOneMinus);
-				#endif
 
 				// Setup InputData
 				InputData inputData;
