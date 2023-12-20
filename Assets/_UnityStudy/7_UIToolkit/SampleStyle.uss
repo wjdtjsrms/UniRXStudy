@@ -1,0 +1,127 @@
+.button-blue {
+    height: 100px;
+    color: rgb(255, 255, 255);
+    font-size: 45px;
+    background-color: rgb(76, 106, 255);
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    border-bottom-left-radius: 50px;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    -unity-font-style: normal;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-out;
+}
+
+.button-blue:hover {
+    scale: 1.05 1.1;
+}
+
+.button-blue:active {
+    background-color: rgb(61, 84, 200);
+}
+
+.text--title {
+    font-size: 80px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    align-items: flex-start;
+    padding-top: 40px;
+    padding-right: 0;
+    padding-bottom: 40px;
+    padding-left: 0;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    -unity-font-definition: url('project://database/Assets/_UnityStudy/7_UIToolkit/UIResource/NanumGothic%20SDF.asset?fileID=11400000&guid=32078879427ef9d41b4cb7c889c725f3&type=2#NanumGothic SDF');
+}
+
+.text--paragraph {
+    font-size: 36px;
+    white-space: normal;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-left-color: rgb(255, 0, 0);
+    border-right-color: rgb(255, 0, 0);
+    border-top-color: rgb(255, 0, 0);
+    border-bottom-color: rgb(255, 0, 0);
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 20px;
+    padding-right: 80px;
+    padding-bottom: 20px;
+    padding-left: 80px;
+}
+
+.bottomssheet {
+    flex-grow: 1;
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    bottom: 0;
+    background-color: rgb(255, 255, 255);
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+    align-items: center;
+    padding-top: 50px;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    translate: 0 100%;
+    transition-duration: 1s;
+    transition-timing-function: ease-out-bounce;
+}
+
+.scrim {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transition-duration: 0.25s;
+}
+
+.scrim--fadein {
+    opacity: 1;
+}
+
+.image--boy {
+    flex-grow: 0;
+    background-image: url('project://database/Assets/_UnityStudy/7_UIToolkit/UIResource/Hyperspace%20-%20Floating.png?fileID=2800000&guid=2997e8acf51feb8498baea13e684415d&type=3#Hyperspace - Floating');
+    width: 300px;
+    height: 600px;
+    transition-duration: 2s;
+    transition-timing-function: ease-out-cubic;
+}
+
+.image--boy--inair {
+    translate: -500px -400px;
+}
+
+.image--girl {
+    flex-grow: 0;
+    background-image: url('project://database/Assets/_UnityStudy/7_UIToolkit/UIResource/Hyperspace%20-%20TV.png?fileID=2800000&guid=469c32f1abb31a943bc84f7a36517c3d&type=3#Hyperspace - TV');
+    width: 400px;
+    height: 500px;
+    transition-duration: 1s;
+}
+
+.image--girl--up {
+    translate: 0 -50px;
+}
+
+.bottomsheet--up {
+    translate: 0 0%;
+}

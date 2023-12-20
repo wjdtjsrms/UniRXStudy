@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/_UnityStudy/7_UIToolkit/SampleStyle.uss?fileID=7433441132597879392&amp;guid=9c66758c988553041ba070c8deaec54f&amp;type=3#SampleStyle" />
+    <ui:VisualElement name="VisualElement" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); width: 100%; height: 100%; opacity: 1; display: flex; -unity-background-scale-mode: stretch-to-fill; flex-shrink: 1; flex-direction: column; align-items: flex-start; justify-content: flex-start; -unity-font-definition: url(&apos;project://database/Assets/_UnityStudy/7_UIToolkit/UIResource/NanumGothicBold%20SDF.asset?fileID=11400000&amp;guid=a7731274c6fc34942b22238bbc287d9e&amp;type=2#NanumGothicBold SDF&apos;);">
+        <ui:VisualElement style="flex-grow: 0; background-color: rgba(255, 0, 0, 0); width: 100%; height: 50%; flex-direction: row; align-items: flex-end; justify-content: space-around;">
+            <ui:VisualElement name="image_Boy" class="image--boy image--boy--inair" />
+            <ui:VisualElement name="image_Robot" style="flex-grow: 0; background-image: url(&apos;project://database/Assets/_UnityStudy/7_UIToolkit/UIResource/Hyperspace%20-%20Robot%202.png?fileID=2800000&amp;guid=b7a7f43e15ec33a4e8bdfc64ac7a36fe&amp;type=3#Hyperspace - Robot 2&apos;); width: 300px; height: 600px;" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 0; background-color: rgb(255, 255, 255); width: 100%; height: 50%; align-items: flex-start; justify-content: space-between;">
+            <ui:VisualElement style="flex-grow: 1; padding-top: 40px; padding-bottom: 40px;">
+                <ui:Label tabindex="-1" text="Quamquam" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Title" class="text--title" />
+                <ui:Label tabindex="-1" text="It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using &apos;Content here, content here&apos;, making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for &apos;lorem ipsum&apos; will uncover many web sites still in their infancy." parse-escape-sequences="true" display-tooltip-when-elided="true" name="Paragraph" class="text--paragraph" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 0; width: 100%; height: 240px; justify-content: center; padding-right: 60px; padding-left: 60px;">
+                <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Button_Open" class="button-blue" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Container_Bottom" style="width: 100%; height: 100%; position: absolute;">
+            <ui:VisualElement name="Scrim" class="scrim" />
+            <ui:VisualElement name="BottomSheet" class="bottomssheet">
+                <ui:Label tabindex="-1" text="Omnes" parse-escape-sequences="true" display-tooltip-when-elided="true" class="text--title" />
+                <ui:VisualElement name="Image_Girl" class="image--girl image--girl--up" />
+                <ui:Label tabindex="-1" text="See in rebus apertissimis nimium longi sumus." parse-escape-sequences="true" display-tooltip-when-elided="true" name="Message" class="text--paragraph" style="padding-top: 100px; padding-bottom: 100px;" />
+                <ui:Button text="&#10;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Button_Close" style="position: absolute; right: 50px; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; width: 45px; height: 45px; background-image: url(&apos;project://database/Assets/_UnityStudy/7_UIToolkit/UIResource/free-icon-x-657059.png?fileID=2800000&amp;guid=80424d4136d56cd40991b0db72c4ad43&amp;type=3#free-icon-x-657059&apos;); background-color: rgba(188, 188, 188, 0); -unity-background-image-tint-color: rgb(231, 231, 231);" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
