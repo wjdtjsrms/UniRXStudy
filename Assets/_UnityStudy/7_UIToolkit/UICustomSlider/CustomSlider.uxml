@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/_UnityStudy/7_UIToolkit/UICustomSlider/CustomControls.uss?fileID=7433441132597879392&amp;guid=eb16e60c9d5b7e04bb678c2861b92c31&amp;type=3#CustomControls" />
+    <ui:Slider picking-mode="Ignore" label="Slider" value="65" high-value="100" name="MySlider" style="width: 100%; height: 80px; background-image: url(&apos;project://database/Assets/_UnityStudy/7_UIToolkit/UICustomSlider/UIResources/Slider17_Frame.png?fileID=21300000&amp;guid=f9e47d48ae68e48eab6bcdcc8fcac328&amp;type=3#Slider17_Frame&apos;); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;">
+        <ui:VisualElement class="bubble" style="display: none;">
+            <ui:Label tabindex="-1" text="123" parse-escape-sequences="true" display-tooltip-when-elided="true" class="bubble_label" style="-unity-text-align: middle-center;" />
+        </ui:VisualElement>
+    </ui:Slider>
+</ui:UXML>

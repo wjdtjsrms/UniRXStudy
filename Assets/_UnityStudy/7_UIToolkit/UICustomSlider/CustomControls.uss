@@ -1,0 +1,92 @@
+#MySlider > Label {
+    font-size: 14px;
+    display: none;
+}
+
+#MySlider #unity-drag-container {
+    background-color: rgb(255, 0, 0);
+    margin-top: 25px;
+    margin-bottom: 25px;
+    margin-right: 40px;
+    margin-left: 40px;
+    overflow: hidden;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+#MySlider #unity-tracker {
+    flex-grow: 1;
+    top: 0;
+    position: relative;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    background-color: rgb(50, 50, 50);
+}
+
+#MySlider #unity-dragger {
+    background-color: rgb(239, 255, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    width: 20px;
+    height: 100%;
+    top: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+.bar {
+    width: 2000px;
+    height: 100%;
+    background-color: rgb(255, 96, 0);
+    align-self: flex-end;
+}
+
+.newDragger {
+    position: absolute;
+    width: 49px;
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0);
+    background-image: url('project://database/Assets/_UnityStudy/7_UIToolkit/UICustomSlider/UIResources/Slider12_Handle.png?fileID=21300000&guid=6124341aca5a24f1c8ffa878bf205e93&type=3#Slider12_Handle');
+}
+
+.bubble {
+    flex-grow: 1;
+    position: absolute;
+    background-image: url('project://database/Assets/_UnityStudy/7_UIToolkit/UICustomSlider/UIResources/Heart.png?fileID=21300000&guid=4af1de16162deeb458dfa70b3206726f&type=3#Heart');
+    background-color: rgba(255, 255, 255, 0);
+    width: 70px;
+    height: 90px;
+    transition-property: scale, opacity;
+    transition-duration: 1.2s, 0.1s;
+    transition-timing-function: ease-out-elastic, ease;
+    transform-origin: bottom;
+}
+
+.bubble_label {
+    font-size: 30px;
+    -unity-font-style: normal;
+    left: 12px;
+    top: 12px;
+    color: rgb(255, 255, 255);
+}
+
+.bubble--hidden {
+    scale: 0.5 0.5;
+    opacity: 0;
+}
