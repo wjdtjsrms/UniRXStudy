@@ -7,6 +7,13 @@
       "dependencies": {},
       "hash": "d210e3d76adc0cce77f4ad2af1ade88dad6b1d5a"
     },
+    "com.garume.uniaquarium": {
+      "version": "https://github.com/Garume/UniAquarium.git?path=/Assets/UniAquarium",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "06f44499407c26f3f6323fc6cf138432d153d6b7"
+    },
     "com.neuecc.unirx": {
       "version": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
       "depth": 0,
