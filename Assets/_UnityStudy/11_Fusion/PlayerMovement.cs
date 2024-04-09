@@ -12,6 +12,7 @@ public class PlayerMovement : NetworkBehaviour
 
     public float JumpForce = 5f;
     public float GravityValue = -9.81f;
+    public Camera playerCamera;
 
     private void Awake()
     {
@@ -23,6 +24,15 @@ public class PlayerMovement : NetworkBehaviour
         if (Input.GetButtonDown("Jump"))
         {
             _jumpPressed = true;
+        }
+    }
+
+    public override void Spawned()
+    {
+        if (HasStateAuthority)
+        {
+            playerCamera = Camera.main;
+            playerCamera.GetComponent<FirstPersonCamera>().target = transform;
         }
     }
 
@@ -39,7 +49,8 @@ public class PlayerMovement : NetworkBehaviour
             _velocity = new Vector3(0, -1, 0);
         }
 
-        Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * Runner.DeltaTime * PlayerSpeed;
+        Quaternion cameraRotationY = Quaternion.Euler(0, playerCamera.transform.rotation.eulerAngles.y, 0);
+        Vector3 move = cameraRotationY * new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * Runner.DeltaTime * PlayerSpeed;
 
         _velocity.y += GravityValue * Runner.DeltaTime;
         if (_jumpPressed && _controller.isGrounded)

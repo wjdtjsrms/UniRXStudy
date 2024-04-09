@@ -16,6 +16,9 @@ GameObject:
   - component: {fileID: 4735834286135871369}
   - component: {fileID: 1988642605449336655}
   - component: {fileID: -6888892274958231229}
+  - component: {fileID: 8998304570175642202}
+  - component: {fileID: 3001240525208163166}
+  - component: {fileID: 6558691444845578589}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -156,6 +159,9 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 1988642605449336655}
   - {fileID: -6888892274958231229}
+  - {fileID: 8998304570175642202}
+  - {fileID: 3001240525208163166}
+  - {fileID: 6558691444845578589}
 --- !u!114 &1988642605449336655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,3 +193,45 @@ MonoBehaviour:
   PlayerSpeed: 2
   JumpForce: 5
   GravityValue: -9.81
+  playerCamera: {fileID: 0}
+--- !u!114 &8998304570175642202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5514755126683270296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e476e53dca506b641bfb74de0a68b158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshRenderer: {fileID: 3093040750785842932}
+  _NetworkedColor: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &3001240525208163166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5514755126683270296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4746c4c953dc0d4dbf26059338035dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _NetworkedHealth: 100
+--- !u!114 &6558691444845578589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5514755126683270296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37e46109f800bbf42967adbe0d651225, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  playerMovement: {fileID: -6888892274958231229}
