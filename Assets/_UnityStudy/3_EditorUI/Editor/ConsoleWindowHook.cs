@@ -10,7 +10,7 @@ public class ConsoleWindowHook
 
     static ConsoleWindowHook()
     {
-        EditorApplication.update += Update;
+        //EditorApplication.update += Update;
     }
 
     private static void Update()
