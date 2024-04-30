@@ -12,6 +12,6 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         {
             var playerObject = Runner.Spawn(PlayerPrefab, new Vector3(0, 1, 0), Quaternion.identity, player);
             Runner.SetPlayerObject(player, playerObject);
-        }
+        } 
     }
 }

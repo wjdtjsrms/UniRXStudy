@@ -1,9 +1,8 @@
 fileFormatVersion: 2
-guid: 71e78979d88edc04fa18307597c68695
-labels:
-- FusionCodeDoc
-TextScriptImporter:
+guid: 405f547c8de37b148a1ea9cf773140ca
+NativeFormatImporter:
   externalObjects: {}
+  mainObjectFileID: 2100000
   userData: 
   assetBundleName: 
   assetBundleVariant: 
