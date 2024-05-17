@@ -1,28 +1,22 @@
-using System;
 using UnityEngine;
-
-#if UNITY_INCLUDE_ARFOUNDATION
 using UnityEngine.XR.ARFoundation;
-#endif
 
 public class PlaceOnPlane : MonoBehaviour
 {
     [SerializeField]
-    Transform m_CameraTransform;
+    private Transform m_CameraTransform;
 
     [SerializeField]
-    GameObject m_HeadPoseReticle;
+    private GameObject m_HeadPoseReticle;
+    private GameObject m_SpawnedHeadPoseReticle;
+    private RaycastHit m_HitInfo;
 
-#if UNITY_INCLUDE_ARFOUNDATION
-    GameObject m_SpawnedHeadPoseReticle;
-    RaycastHit m_HitInfo;
-
-    void Start()
+    private void Start()
     {
         m_SpawnedHeadPoseReticle = Instantiate(m_HeadPoseReticle, Vector3.zero, Quaternion.identity);
     }
 
-    void Update()
+    private void Update()
     {
         if (Physics.Raycast(new Ray(m_CameraTransform.position, m_CameraTransform.forward), out m_HitInfo))
         {
@@ -32,5 +26,4 @@ public class PlaceOnPlane : MonoBehaviour
             }
         }
     }
-#endif
 }
