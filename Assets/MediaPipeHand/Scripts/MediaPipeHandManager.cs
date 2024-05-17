@@ -3,46 +3,50 @@ using UnityEngine;
 using UnityEngine.XR.Hands;
 using UnityEngine.XR.Hands.ProviderImplementation;
 
-public class MediaPipeHandManager : MonoBehaviour
+namespace Anipen.Subsystem.MeidaPipeHand
 {
-    public Transform handPos;
-    public Transform tempJointPosition;
-
-    MediaPipeHandSubsystem handSubsystem;
-    XRHandProviderUtility.SubsystemUpdater m_SubsystemUpdater;
-
-    private void Awake()
+    public class MediaPipeHandManager : MonoBehaviour
     {
-        var currentHandSubsystem = new List<XRHandSubsystem>();
-        SubsystemManager.GetSubsystems(currentHandSubsystem);
-        foreach(var handSubsystem in currentHandSubsystem)
-        {
-            if (handSubsystem.running)
-                handSubsystem.Stop();
-        }
+        [SerializeField] private Transform handTR;
+        [SerializeField] private Transform tempJointPosition;
 
-        var descriptors = new List<XRHandSubsystemDescriptor>();
-        SubsystemManager.GetSubsystemDescriptors(descriptors);
-        for(int i = 0; i < descriptors.Count; ++i)
+        private MediaPipeHandSubsystem handSubsystem;
+        private XRHandProviderUtility.SubsystemUpdater subsystemUpdater;
+
+        public Transform HandTR => handTR;
+        public Transform TempJointPosition => tempJointPosition;
+
+        private void Awake()
         {
-            var descriptor = descriptors[i];
-            if (descriptor.id == MeidaPipeHandProvider.DescriptorId)
+            var currentHandSubsystem = new List<XRHandSubsystem>();
+            SubsystemManager.GetSubsystems(currentHandSubsystem);
+            foreach (var handSubsystem in currentHandSubsystem)
             {
-                handSubsystem = descriptor.Create() as MediaPipeHandSubsystem;
-                break;
+                if (handSubsystem.running)
+                    handSubsystem.Stop();
             }
+
+            var descriptors = new List<XRHandSubsystemDescriptor>();
+            SubsystemManager.GetSubsystemDescriptors(descriptors);
+            for (int i = 0; i < descriptors.Count; ++i)
+            {
+                var descriptor = descriptors[i];
+                if (descriptor.id == MeidaPipeHandProvider.DESCRIPTOR_ID)
+                {
+                    handSubsystem = descriptor.Create() as MediaPipeHandSubsystem;
+                    break;
+                }
+            }
+
+            if (handSubsystem == null)
+            {
+                Debug.LogError("Couldn't find Device Simulator hands subsystem.", this);
+                return;
+            }
+
+            subsystemUpdater = new XRHandProviderUtility.SubsystemUpdater(handSubsystem);
+            subsystemUpdater.Start();
+            handSubsystem.Start();
         }
-
-        if (handSubsystem == null)
-        {
-            Debug.LogError("Couldn't find Device Simulator hands subsystem.", this);
-            return;
-        }
-
-        m_SubsystemUpdater = new XRHandProviderUtility.SubsystemUpdater(handSubsystem);
-        m_SubsystemUpdater.Start();
-        handSubsystem.Start();
-
-        Debug.Log("START INIT HAND SUBSYSTEM");
     }
 }

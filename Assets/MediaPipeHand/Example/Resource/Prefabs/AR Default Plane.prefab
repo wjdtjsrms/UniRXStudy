@@ -150,8 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58ea76539d40e7244a5b1574be0f2f09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AlignmentText: {fileID: 7963618835253693426}
-  m_ClassificationText: {fileID: 912424416095616942}
+  alignmentText: {fileID: 7963618835253693426}
+  classificationText: {fileID: 912424416095616942}
 --- !u!1 &682886992856445604
 GameObject:
   m_ObjectHideFlags: 0

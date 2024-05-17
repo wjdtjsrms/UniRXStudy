@@ -379,6 +379,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: MediaPipeHand
       objectReference: {fileID: 0}
+    - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.2635
+      objectReference: {fileID: 0}
+    - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.025999999
+      objectReference: {fileID: 0}
+    - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.024
+      objectReference: {fileID: 0}
+    - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
     - target: {fileID: 7815320578546739430, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -520,8 +544,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 731d88ae6ec614251ac56a937c860cd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CameraTransform: {fileID: 2121586914}
-  m_HeadPoseReticle: {fileID: 290534402812620168, guid: ac01d01054a614e4b81a0174f9e3810e, type: 3}
+  cameraTransform: {fileID: 2121586914}
+  headPoseReticle: {fileID: 290534402812620168, guid: ac01d01054a614e4b81a0174f9e3810e, type: 3}
 --- !u!114 &727977847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -534,9 +558,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7172130a69a0b456da0a537f05db8459, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RightSpawnPrefab: {fileID: 3565438679523394831, guid: 365e082fc8cc741ab871a24c99a42077, type: 3}
-  m_LeftSpawnPrefab: {fileID: 2616154378743779166, guid: d82e1898617d84788819786745c6690c, type: 3}
-  m_PolySpatialCameraTransform: {fileID: 2115460895}
+  rightSpawnPrefab: {fileID: 3565438679523394831, guid: 365e082fc8cc741ab871a24c99a42077, type: 3}
+  leftSpawnPrefab: {fileID: 2616154378743779166, guid: d82e1898617d84788819786745c6690c, type: 3}
+  polySpatialCameraTransform: {fileID: 2115460895}
 --- !u!1 &1517854671
 GameObject:
   m_ObjectHideFlags: 0

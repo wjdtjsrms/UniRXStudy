@@ -1,27 +1,17 @@
-using UnityEngine;
-
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.XR.Hands;
 
-
-public enum VisionOSHandJointID
-{
-    ForearmWrist = 27,
-    ForearmArm = 28
-}
-
-namespace PolySpatial.Samples
+namespace Anipen.Subsystem.MeidaPipeHand
 {
     public class HandVisualizer : MonoBehaviour
     {
         [SerializeField]
-        GameObject m_JointPrefab;
-
-        XRHandSubsystem m_Subsystem;
-        HandGameObjects m_LeftHandGameObjects;
-        HandGameObjects m_RightHandGameObjects;
-
-        static readonly List<XRHandSubsystem> k_SubsystemsReuse = new();
+        private GameObject m_JointPrefab;
+        private XRHandSubsystem m_Subsystem;
+        private HandGameObjects m_LeftHandGameObjects;
+        private HandGameObjects m_RightHandGameObjects;
+        private static readonly List<XRHandSubsystem> k_SubsystemsReuse = new();
 
         protected void OnEnable()
         {
@@ -41,7 +31,7 @@ namespace PolySpatial.Samples
             UpdateRenderingVisibility(m_RightHandGameObjects, false);
         }
 
-        void UnsubscribeSubsystem()
+        private void UnsubscribeSubsystem()
         {
             m_Subsystem.trackingAcquired -= OnTrackingAcquired;
             m_Subsystem.trackingLost -= OnTrackingLost;
@@ -114,7 +104,7 @@ namespace PolySpatial.Samples
             SubscribeHandSubsystem();
         }
 
-        void SubscribeHandSubsystem()
+        private void SubscribeHandSubsystem()
         {
             if (m_Subsystem == null)
                 return;
@@ -124,7 +114,7 @@ namespace PolySpatial.Samples
             m_Subsystem.updatedHands += OnUpdatedHands;
         }
 
-        void UnsubscribeHandSubsystem()
+        private void UnsubscribeHandSubsystem()
         {
             if (m_Subsystem == null)
                 return;
@@ -134,7 +124,7 @@ namespace PolySpatial.Samples
             m_Subsystem.updatedHands -= OnUpdatedHands;
         }
 
-        static void UpdateRenderingVisibility(HandGameObjects handGameObjects, bool isTracked)
+        private static void UpdateRenderingVisibility(HandGameObjects handGameObjects, bool isTracked)
         {
             if (handGameObjects == null)
                 return;
@@ -142,7 +132,7 @@ namespace PolySpatial.Samples
             handGameObjects.ToggleDebugDrawJoints(isTracked);
         }
 
-        void OnTrackingAcquired(XRHand hand)
+        private void OnTrackingAcquired(XRHand hand)
         {
             switch (hand.handedness)
             {
@@ -156,7 +146,7 @@ namespace PolySpatial.Samples
             }
         }
 
-        void OnTrackingLost(XRHand hand)
+        private void OnTrackingLost(XRHand hand)
         {
             switch (hand.handedness)
             {
@@ -170,7 +160,7 @@ namespace PolySpatial.Samples
             }
         }
 
-        void OnUpdatedHands(XRHandSubsystem subsystem, XRHandSubsystem.UpdateSuccessFlags updateSuccessFlags, XRHandSubsystem.UpdateType updateType)
+        private void OnUpdatedHands(XRHandSubsystem subsystem, XRHandSubsystem.UpdateSuccessFlags updateSuccessFlags, XRHandSubsystem.UpdateType updateType)
         {
             // We have no game logic depending on the Transforms, so early out here
             // (add game logic before this return here, directly querying from
@@ -187,16 +177,13 @@ namespace PolySpatial.Samples
                 (updateSuccessFlags & XRHandSubsystem.UpdateSuccessFlags.RightHandJoints) != 0);
         }
 
-        class HandGameObjects
+        private class HandGameObjects
         {
-            GameObject m_DrawJointsParent;
-            const int k_NumVisionOSJoints = 2;
-
-            readonly GameObject[] m_DrawJoints = new GameObject[XRHandJointID.EndMarker.ToIndex() + k_NumVisionOSJoints];
-            readonly LineRenderer[] m_Lines = new LineRenderer[XRHandJointID.EndMarker.ToIndex() + k_NumVisionOSJoints];
-
-            static Vector3[] s_LinePointsReuse = new Vector3[2];
-            const float k_LineWidth = 0.005f;
+            private GameObject m_DrawJointsParent;
+            private readonly GameObject[] m_DrawJoints = new GameObject[XRHandJointID.EndMarker.ToIndex()];
+            private readonly LineRenderer[] m_Lines = new LineRenderer[XRHandJointID.EndMarker.ToIndex()];
+            private static Vector3[] s_LinePointsReuse = new Vector3[2];
+            private const float k_LineWidth = 0.005f;
 
             public HandGameObjects(
                 Handedness handedness,
@@ -211,7 +198,7 @@ namespace PolySpatial.Samples
                     var joint = Instantiate(debugDrawPrefab);
                     var jointTransform = joint.transform;
                     jointTransform.parent = drawJointsParent;
-                    joint.name = jointID < XRHandJointID.EndMarker ? jointID.ToString() : ((VisionOSHandJointID)jointID).ToString();
+                    joint.name = jointID.ToString();
                     m_DrawJoints[jointIndex] = joint;
 
                     m_Lines[jointIndex] = m_DrawJoints[jointIndex].GetComponent<LineRenderer>();
@@ -243,9 +230,6 @@ namespace PolySpatial.Samples
                         AssignJoint(XRHandJointIDUtility.FromIndex(jointIndex), parentTransform);
                     }
                 }
-
-                AssignJoint((XRHandJointID)VisionOSHandJointID.ForearmWrist, parentTransform);
-                AssignJoint((XRHandJointID)VisionOSHandJointID.ForearmArm, parentTransform);
             }
 
             public void OnDestroy()
@@ -303,7 +287,7 @@ namespace PolySpatial.Samples
                 parentIndex = XRHandJointID.Wrist.ToIndex();
             }
 
-            void UpdateJoint(
+            private void UpdateJoint(
                 XRHandJoint joint,
                 ref Pose parentPose,
                 ref int parentIndex,
@@ -342,7 +326,7 @@ namespace PolySpatial.Samples
                 }
             }
 
-            static void ToggleRenderers<TRenderer>(bool toggle, Transform rendererTransform)
+            private static void ToggleRenderers<TRenderer>(bool toggle, Transform rendererTransform)
                 where TRenderer : Renderer
             {
                 if (rendererTransform.TryGetComponent<TRenderer>(out var renderer))

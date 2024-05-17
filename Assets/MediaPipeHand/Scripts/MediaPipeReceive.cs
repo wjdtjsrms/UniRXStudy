@@ -3,46 +3,55 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using UnityEngine;
 
-public class MediaPipeReceive 
+namespace Anipen.Subsystem.MeidaPipeHand
 {
-    public int port;
-    public bool startRecieving = true;
-    public bool printToConsole = false;
-    public string data = "";
-
-    private Thread receiveThread;
-    private UdpClient client;
-
-    public void Start(int port)
+    public class MediaPipeReceive
     {
-        this.port = port;
-        startRecieving = true;
-        receiveThread = new Thread(new ThreadStart(ReceiveData));
-        receiveThread.IsBackground = true;
-        receiveThread.Start();
-    }
+        private string data = "";
+        private int port;
+        private bool startRecieving = true;
+        private Thread receiveThread;
+        private UdpClient client;
 
-    public void Stop()
-    {
-        startRecieving = false;
-    }
+        public string Data => data;
 
-    private void ReceiveData()
-    {
-        client = new UdpClient(port);
-        while (startRecieving)
+
+        public void Start(int port)
         {
-            try
+            this.port = port;
+            startRecieving = true;
+            receiveThread = new Thread(new ThreadStart(ReceiveData))
             {
-                IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
-                byte[] dataByte = client.Receive(ref anyIP);
-                data = Encoding.UTF8.GetString(dataByte);
-            }
-            catch (Exception err)
+                IsBackground = true
+            };
+            receiveThread.Start();
+        }
+
+        public void Stop()
+        {
+            client?.Close();
+
+            data = "";
+            startRecieving = false;
+            client = null;
+        }
+
+        private void ReceiveData()
+        {
+            client = new UdpClient(port);
+            while (startRecieving)
             {
-                Debug.Log(err.ToString());
+                try
+                {
+                    IPEndPoint anyIP = new(IPAddress.Any, 0);
+                    byte[] dataByte = client.Receive(ref anyIP);
+                    data = Encoding.UTF8.GetString(dataByte);
+                }
+                catch (Exception)
+                {
+                    Stop();
+                }
             }
         }
     }

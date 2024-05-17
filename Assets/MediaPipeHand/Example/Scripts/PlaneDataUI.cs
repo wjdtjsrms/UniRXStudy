@@ -1,44 +1,34 @@
 using TMPro;
 using UnityEngine;
-
-#if UNITY_INCLUDE_ARFOUNDATION
 using UnityEngine.XR.ARFoundation;
-#endif
 
-namespace PolySpatial.Samples
+namespace Anipen.Subsystem.MeidaPipeHand.Example
 {
-#if UNITY_INCLUDE_ARFOUNDATION
     [RequireComponent(typeof(ARPlane))]
-#endif
     public class PlaneDataUI : MonoBehaviour
     {
-        [SerializeField]
-        TMP_Text m_AlignmentText;
+        [SerializeField] private TMP_Text alignmentText;
+        [SerializeField] private TMP_Text classificationText;
 
-        [SerializeField]
-        TMP_Text m_ClassificationText;
+        private ARPlane plane;
 
-#if UNITY_INCLUDE_ARFOUNDATION
-        ARPlane m_Plane;
-
-        void OnEnable()
+        private void OnEnable()
         {
-            m_Plane = GetComponent<ARPlane>();
-            m_Plane.boundaryChanged += OnBoundaryChanged;
+            plane = GetComponent<ARPlane>();
+            plane.boundaryChanged += OnBoundaryChanged;
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
-            m_Plane.boundaryChanged -= OnBoundaryChanged;
+            plane.boundaryChanged -= OnBoundaryChanged;
         }
 
-        void OnBoundaryChanged(ARPlaneBoundaryChangedEventArgs eventArgs)
+        private void OnBoundaryChanged(ARPlaneBoundaryChangedEventArgs eventArgs)
         {
-            m_ClassificationText.text = m_Plane.classification.ToString();
-            m_AlignmentText.text = m_Plane.alignment.ToString();
+            classificationText.text = plane.classification.ToString();
+            alignmentText.text = plane.alignment.ToString();
 
-            transform.position = m_Plane.center;
+            transform.position = plane.center;
         }
-#endif
     }
 }

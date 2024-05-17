@@ -1,29 +1,33 @@
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
-public class PlaceOnPlane : MonoBehaviour
+namespace Anipen.Subsystem.MeidaPipeHand.Example
 {
-    [SerializeField]
-    private Transform m_CameraTransform;
-
-    [SerializeField]
-    private GameObject m_HeadPoseReticle;
-    private GameObject m_SpawnedHeadPoseReticle;
-    private RaycastHit m_HitInfo;
-
-    private void Start()
+    public class PlaceOnPlane : MonoBehaviour
     {
-        m_SpawnedHeadPoseReticle = Instantiate(m_HeadPoseReticle, Vector3.zero, Quaternion.identity);
-    }
+        [SerializeField]
+        private Transform cameraTransform;
 
-    private void Update()
-    {
-        if (Physics.Raycast(new Ray(m_CameraTransform.position, m_CameraTransform.forward), out m_HitInfo))
+        [SerializeField]
+        private GameObject headPoseReticle;
+        private GameObject spawnedHeadPoseReticle;
+        private RaycastHit hitInfo;
+
+        private void Start()
         {
-            if (m_HitInfo.transform.TryGetComponent(out ARPlane plane))
+            spawnedHeadPoseReticle = Instantiate(headPoseReticle, Vector3.zero, Quaternion.identity);
+        }
+
+        private void Update()
+        {
+            if (Physics.Raycast(new Ray(cameraTransform.position, cameraTransform.forward), out hitInfo))
             {
-                m_SpawnedHeadPoseReticle.transform.SetPositionAndRotation(m_HitInfo.point, Quaternion.FromToRotation(m_SpawnedHeadPoseReticle.transform.up, m_HitInfo.normal));
+                if (hitInfo.transform.TryGetComponent(out ARPlane plane))
+                {
+                    spawnedHeadPoseReticle.transform.SetPositionAndRotation(hitInfo.point, Quaternion.FromToRotation(spawnedHeadPoseReticle.transform.up, hitInfo.normal));
+                }
             }
         }
     }
+
 }

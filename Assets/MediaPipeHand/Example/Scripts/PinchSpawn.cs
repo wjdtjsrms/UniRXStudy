@@ -1,112 +1,80 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR.ARSubsystems;
 using UnityEngine.XR.Hands;
-using UnityEngine.XR.Management;
 
-namespace PolySpatial.Samples
+namespace Anipen.Subsystem.MeidaPipeHand.Example
 {
     public class PinchSpawn : MonoBehaviour
     {
-        [SerializeField]
-        GameObject m_RightSpawnPrefab;
+        [SerializeField] private GameObject rightSpawnPrefab;
+        [SerializeField] private GameObject leftSpawnPrefab;
+        [SerializeField] private Transform polySpatialCameraTransform;
 
-        [SerializeField]
-        GameObject m_LeftSpawnPrefab;
+        private static readonly List<XRHandSubsystem> subsystemsReuse = new();
+        private XRHandSubsystem handSubsystem;
+        private XRHandJoint rightIndexTipJoint;
+        private XRHandJoint rightThumbTipJoint;
+        private XRHandJoint leftIndexTipJoint;
+        private XRHandJoint leftThumbTipJoint;
+        private bool activeRightPinch;
+        private bool activeLeftPinch;
+        private float scaledThreshold;
+        private const float pinchThreshold = 0.02f;
 
-        [SerializeField]
-        Transform m_PolySpatialCameraTransform;
-
-        static readonly List<XRHandSubsystem> k_SubsystemsReuse = new();
-
-        XRHandSubsystem m_HandSubsystem;
-        XRHandJoint m_RightIndexTipJoint;
-        XRHandJoint m_RightThumbTipJoint;
-        XRHandJoint m_LeftIndexTipJoint;
-        XRHandJoint m_LeftThumbTipJoint;
-        bool m_ActiveRightPinch;
-        bool m_ActiveLeftPinch;
-        float m_ScaledThreshold;
-
-        const float k_PinchThreshold = 0.02f;
-
-        void Start()
+        private void Start()
         {
             GetHandSubsystem();
-            m_ScaledThreshold = k_PinchThreshold / m_PolySpatialCameraTransform.localScale.x;
+            scaledThreshold = pinchThreshold / polySpatialCameraTransform.localScale.x;
         }
 
-        void Update()
+        private void Update()
         {
             if (!CheckHandSubsystem())
                 return;
 
-            var updateSuccessFlags = m_HandSubsystem.TryUpdateHands(XRHandSubsystem.UpdateType.Dynamic);
+            var updateSuccessFlags = handSubsystem.TryUpdateHands(XRHandSubsystem.UpdateType.Dynamic);
 
             if ((updateSuccessFlags & XRHandSubsystem.UpdateSuccessFlags.RightHandRootPose) != 0)
             {
                 // assign joint values
-                m_RightIndexTipJoint = m_HandSubsystem.rightHand.GetJoint(XRHandJointID.IndexTip);
-                m_RightThumbTipJoint = m_HandSubsystem.rightHand.GetJoint(XRHandJointID.ThumbTip);
+                rightIndexTipJoint = handSubsystem.rightHand.GetJoint(XRHandJointID.IndexTip);
+                rightThumbTipJoint = handSubsystem.rightHand.GetJoint(XRHandJointID.ThumbTip);
 
-                DetectPinch(m_RightIndexTipJoint, m_RightThumbTipJoint, ref m_ActiveRightPinch, true);
+                DetectPinch(rightIndexTipJoint, rightThumbTipJoint, ref activeRightPinch, true);
             }
 
             if ((updateSuccessFlags & XRHandSubsystem.UpdateSuccessFlags.LeftHandRootPose) != 0)
             {
                 // assign joint values
-                m_LeftIndexTipJoint = m_HandSubsystem.leftHand.GetJoint(XRHandJointID.IndexTip);
-                m_LeftThumbTipJoint = m_HandSubsystem.leftHand.GetJoint(XRHandJointID.ThumbTip);
+                leftIndexTipJoint = handSubsystem.leftHand.GetJoint(XRHandJointID.IndexTip);
+                leftThumbTipJoint = handSubsystem.leftHand.GetJoint(XRHandJointID.ThumbTip);
 
-                DetectPinch(m_LeftIndexTipJoint, m_LeftThumbTipJoint, ref m_ActiveLeftPinch, false);
+                DetectPinch(leftIndexTipJoint, leftThumbTipJoint, ref activeLeftPinch, false);
             }
         }
 
-        void GetHandSubsystem()
+        private void GetHandSubsystem()
         {
-            SubsystemManager.GetSubsystems(k_SubsystemsReuse);
-            for (var i = 0; i < k_SubsystemsReuse.Count; ++i)
+            SubsystemManager.GetSubsystems(subsystemsReuse);
+            for (var i = 0; i < subsystemsReuse.Count; ++i)
             {
-                var handSubsystem = k_SubsystemsReuse[i];
+                var handSubsystem = subsystemsReuse[i];
                 if (handSubsystem.running)
                 {
-                    m_HandSubsystem = handSubsystem;
+                    this.handSubsystem = handSubsystem;
                     if (!CheckHandSubsystem())
                         return;
 
-                    m_HandSubsystem.Start();
+                    this.handSubsystem.Start();
                     break;
                 }
             }
-
-            //var xrGeneralSettings = XRGeneralSettings.Instance;
-            //if (xrGeneralSettings == null)
-            //{
-            //    Debug.LogError("XR general settings not set");
-            //}
-
-            //var manager = xrGeneralSettings.Manager;
-            //if (manager != null)
-            //{
-            //    var loader = manager.activeLoader;
-            //    if (loader != null)
-            //    {
-            //        m_HandSubsystem = loader.GetLoadedSubsystem<XRHandSubsystem>();
-            //        if (!CheckHandSubsystem())
-            //            return;
-
-            //        m_HandSubsystem.Start();
-            //    }
-            //}
         }
 
-        bool CheckHandSubsystem()
+        private bool CheckHandSubsystem()
         {
-            if (m_HandSubsystem == null)
+            if (handSubsystem == null)
             {
-#if !UNITY_EDITOR
-                Debug.LogError("Could not find Hand Subsystem");
-#endif
                 enabled = false;
                 return false;
             }
@@ -114,9 +82,9 @@ namespace PolySpatial.Samples
             return true;
         }
 
-        void DetectPinch(XRHandJoint index, XRHandJoint thumb, ref bool activeFlag, bool right)
+        private void DetectPinch(XRHandJoint index, XRHandJoint thumb, ref bool activeFlag, bool right)
         {
-            var spawnObject = right ? m_RightSpawnPrefab : m_LeftSpawnPrefab;
+            var spawnObject = right ? rightSpawnPrefab : leftSpawnPrefab;
 
             if (index.trackingState != XRHandJointTrackingState.None &&
                 thumb.trackingState != XRHandJointTrackingState.None)
@@ -127,18 +95,18 @@ namespace PolySpatial.Samples
                 if (index.TryGetPose(out Pose indexPose))
                 {
                     // adjust transform relative to the PolySpatial Camera transform
-                    indexPOS = m_PolySpatialCameraTransform.InverseTransformPoint(indexPose.position);
+                    indexPOS = polySpatialCameraTransform.InverseTransformPoint(indexPose.position);
                 }
 
                 if (thumb.TryGetPose(out Pose thumbPose))
                 {
                     // adjust transform relative to the PolySpatial Camera adjustments
-                    thumbPOS = m_PolySpatialCameraTransform.InverseTransformPoint(thumbPose.position);
+                    thumbPOS = polySpatialCameraTransform.InverseTransformPoint(thumbPose.position);
                 }
 
                 var pinchDistance = Vector3.Distance(indexPOS, thumbPOS);
 
-                if (pinchDistance <= m_ScaledThreshold)
+                if (pinchDistance <= scaledThreshold)
                 {
                     if (!activeFlag)
                     {
