@@ -381,27 +381,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.2635
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.025999999
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.024
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6499265098105244993, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7815320578546739430, guid: 15bb3f823e0e94723a8e7e3da9ea3b6e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -511,7 +511,7 @@ GameObject:
   - component: {fileID: 727977846}
   - component: {fileID: 727977847}
   m_Layer: 0
-  m_Name: HandManager
+  m_Name: HandFeatures
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -530,7 +530,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2115460895}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &727977846
 MonoBehaviour:
@@ -643,7 +643,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1517854672}
-  - {fileID: 727977844}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2115460896
@@ -907,4 +906,5 @@ SceneRoots:
   - {fileID: 203844589}
   - {fileID: 2115460895}
   - {fileID: 248604195}
+  - {fileID: 727977844}
   - {fileID: 560306195}

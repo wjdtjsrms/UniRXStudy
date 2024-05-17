@@ -48,5 +48,11 @@ namespace Anipen.Subsystem.MeidaPipeHand
             subsystemUpdater.Start();
             handSubsystem.Start();
         }
+
+        private void OnDestroy()
+        {
+            subsystemUpdater.Stop();
+            handSubsystem.Stop();
+        }
     }
 }

@@ -10,7 +10,9 @@ namespace Anipen.Subsystem.MeidaPipeHand
         private readonly MediaPipeTracking leftHandTracking = new(true);
         private readonly MediaPipeTracking rightHandTracking = new(false);
         private MediaPipeHandManager handManager;
-        private NativeArray<bool> unityJointsInLayout;
+        private NativeArray<bool> jointsInLayout;
+        private NativeArray<XRHandJoint> leftHandJoints;
+        private NativeArray<XRHandJoint> rightHandJoints;
         private static readonly float HAND_SCALE = 0.05f;
 
         public static string DESCRIPTOR_ID => "MeidaPipe_Hands";
@@ -37,15 +39,18 @@ namespace Anipen.Subsystem.MeidaPipeHand
 
         public override void Stop()
         {
-            leftHandTracking.Stop();
-            rightHandTracking.Stop();
+            leftHandTracking?.Stop();
+            rightHandTracking?.Stop();
+
+            leftHandJoints.Dispose();
+            rightHandJoints.Dispose();
+            jointsInLayout.Dispose();
         }
 
         public override void Destroy()
         {
             Stop();
             handManager = null;
-            unityJointsInLayout.Dispose();
         }
 
         public override void GetHandLayout(NativeArray<bool> jointsInLayout)
@@ -82,7 +87,7 @@ namespace Anipen.Subsystem.MeidaPipeHand
             jointsInLayout[XRHandJointID.LittleDistal.ToIndex()] = true;
             jointsInLayout[XRHandJointID.LittleTip.ToIndex()] = true;
 
-            unityJointsInLayout = jointsInLayout;
+            this.jointsInLayout = jointsInLayout;
         }
 
         public override XRHandSubsystem.UpdateSuccessFlags TryUpdateHands(
@@ -92,15 +97,17 @@ namespace Anipen.Subsystem.MeidaPipeHand
             ref Pose rightHandRootPose,
             NativeArray<XRHandJoint> rightHandJoints)
         {
+            this.leftHandJoints = leftHandJoints;
+            this.rightHandJoints = rightHandJoints;
             MostRecentUpdateType = updateType;
 
             int mediaPipeJointIndex = -1;
 
             if (leftHandTracking.TryUpdateData(out var leftData))
             {
-                for (int unityJointIndex = 0; unityJointIndex < unityJointsInLayout.Length; unityJointIndex++)
+                for (int unityJointIndex = 0; unityJointIndex < jointsInLayout.Length; unityJointIndex++)
                 {
-                    if (unityJointsInLayout[unityJointIndex] == false)
+                    if (jointsInLayout[unityJointIndex] == false)
                         continue;
 
                     mediaPipeJointIndex++;
@@ -112,9 +119,9 @@ namespace Anipen.Subsystem.MeidaPipeHand
 
             if (rightHandTracking.TryUpdateData(out var rightData))
             {
-                for (int unityJointIndex = 0; unityJointIndex < unityJointsInLayout.Length; unityJointIndex++)
+                for (int unityJointIndex = 0; unityJointIndex < jointsInLayout.Length; unityJointIndex++)
                 {
-                    if (unityJointsInLayout[unityJointIndex] == false)
+                    if (jointsInLayout[unityJointIndex] == false)
                         continue;
 
                     mediaPipeJointIndex++;
