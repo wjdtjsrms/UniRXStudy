@@ -111,7 +111,7 @@ namespace Anipen.Subsystem.MeidaPipeHand
                         continue;
 
                     mediaPipeJointIndex++;
-                    leftHandJoints[unityJointIndex] = UpdateHand(leftData[mediaPipeJointIndex], unityJointIndex, isLeft: true);
+                    leftHandJoints[unityJointIndex] = GetJoint(leftData[mediaPipeJointIndex], unityJointIndex, isLeft: true);
                 }
             }
 
@@ -125,7 +125,7 @@ namespace Anipen.Subsystem.MeidaPipeHand
                         continue;
 
                     mediaPipeJointIndex++;
-                    rightHandJoints[unityJointIndex] = UpdateHand(rightData[mediaPipeJointIndex], unityJointIndex, isLeft: false);
+                    rightHandJoints[unityJointIndex] = GetJoint(rightData[mediaPipeJointIndex], unityJointIndex, isLeft: false);
                 }
             }
 
@@ -140,7 +140,7 @@ namespace Anipen.Subsystem.MeidaPipeHand
             return successFlags;
         }
 
-        private XRHandJoint UpdateHand(Vector3 handPos, int jointIndex, bool isLeft)
+        private XRHandJoint GetJoint(Vector3 handPos, int jointIndex, bool isLeft)
         {
             var handTR = handManager.HandTR;
             var targetPos = (handPos * HAND_SCALE) + handTR.position;
