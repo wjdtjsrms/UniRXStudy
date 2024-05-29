@@ -1,10 +1,12 @@
 namespace Anipen.Subsystem.MRInput
 {
     using Cysharp.Threading.Tasks;
+    using R3;
     using System;
-    using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
+    using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
     public enum MRInputKind
     {
@@ -30,36 +32,6 @@ namespace Anipen.Subsystem.MRInput
         public Vector3 inputDeviceRotation;
     }
 
-    public class GestureSubsystem : IDisposable
-    {
-        private GestureDataStream dataStream;
-
-        public GestureDataStream UpdateDataStream()
-        {
-            return dataStream;
-        }
-
-        public GestureSubsystem(GestureProvider gestureProvider)
-        {
-
-        }
-
-        public void Dispose()
-        {
-
-        }
-
-        public void Start()
-        {
-            Debug.Log("GestureSubsystem Start");
-        }
-
-        public void Stop()
-        {
-            Debug.Log("GestureSubsystem Stop");
-        }
-    }
-
     public class PinchSubsystem : IDisposable
     {
         private readonly List<ITapHandler> tapHandlers = new();
@@ -67,36 +39,41 @@ namespace Anipen.Subsystem.MRInput
         private readonly List<IDeviceMoveHandler> moveHandlers = new();
         private readonly List<IHoldHandler> holdHandlers = new();
 
-        private PinchProvider pinchProvider;
-        private PinchDataStream dataStream;
+        private IDisposable tapDisposable;
+        private IDisposable doubleTapDisposable;
+        private IDisposable moveDisposable;
+        private IDisposable holdDisposable;
+
+        private readonly PinchProvider pinchProvider;
 
         public PinchSubsystem(PinchProvider pinchProvider)
         {
             this.pinchProvider = pinchProvider;
-            dataStream = new();
         }
 
         public void Dispose()
         {
-
-
-        }
-
-        public PinchDataStream UpdateDataStream()
-        {
-
-
-            return dataStream;
+            Stop();
         }
 
         public void Start()
         {
-            Debug.Log("PinchSubsystem Start");
+            pinchProvider.Start();
+
+            tapDisposable = pinchProvider.OnTapSubject.Subscribe((data) => tapHandlers.ForEach((item) => item.OnTap(data)));
+            doubleTapDisposable = pinchProvider.OnDoubleTapSubject.Subscribe((data) => doubleTapHandlers.ForEach((item) => item.OnDoubleTap(data)));
+            moveDisposable = pinchProvider.OnMoveSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceMove(data)));
+            holdDisposable = pinchProvider.OnHoldSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHold(data)));
         }
 
         public void Stop()
         {
-            Debug.Log("PinchSubsystem Stop");
+            pinchProvider?.Dispose();
+
+            tapDisposable?.Dispose();
+            doubleTapDisposable?.Dispose();
+            moveDisposable?.Dispose();
+            holdDisposable?.Dispose();
         }
 
         #region Regist & Unregist Event
@@ -150,82 +127,98 @@ namespace Anipen.Subsystem.MRInput
         #endregion
     }
 
-    public abstract class GestureProvider
+    public abstract class PinchProvider : IDisposable
     {
+        public Observable<PinchData> OnTapSubject { get; private set; }
+        public Observable<PinchData> OnDoubleTapSubject { get; private set; }
+        public Observable<PinchData> OnMoveSubject { get; private set; }
+        public Observable<PinchData> OnHoldSubject { get; private set; }
 
-    }
+        public void Start()
+        {
+            OnTapSubject = SetTapSubject();
+            OnDoubleTapSubject = SetDoubleTapSubject();
+            OnMoveSubject = SetMoveSubject();
+            OnHoldSubject = SetHoldSubject();
+        }
 
-    public class VisionGestureProvider : GestureProvider
-    {
+        public virtual void Dispose() { }
 
-    }
-
-    public class EditorGestureProvider : GestureProvider
-    {
-
-    }
-
-    public abstract class PinchProvider
-    {
-        private event Action<MRInputData> TapEvent;
-        private event Action<MRInputData> DoubleTapEvent;
-        private event Action<MRInputData> DeviceMoveEvent;
-        private event Action<MRInputData, float> HoldEvent;
-        private event Action<MRInputData> RotateEvent;
-        private event Action<MRInputData> PressAndDragEvent;
-
-        protected void Start() { }
-        protected void Stop() { }
-        protected void CheckTap() { }
-        protected void CheckDoubleTap() { }
-        protected void CheckDeviceMove() { }
+        protected abstract Observable<PinchData> SetTapSubject();
+        protected abstract Observable<PinchData> SetDoubleTapSubject();
+        protected abstract Observable<PinchData> SetMoveSubject();
+        protected abstract Observable<PinchData> SetHoldSubject();
     }
 
     public class VisionPinchProvider : PinchProvider
     {
+        protected override Observable<PinchData> SetDoubleTapSubject()
+        {
+            return Observable.EveryUpdate().Select(_ => new PinchData());
+        }
 
+        protected override Observable<PinchData> SetHoldSubject()
+        {
+            return Observable.EveryUpdate().Select(_ => new PinchData());
+        }
+
+        protected override Observable<PinchData> SetMoveSubject()
+        {
+            return Observable.EveryUpdate().Select(_ => new PinchData());
+        }
+
+        protected override Observable<PinchData> SetTapSubject()
+        {
+            return Observable.EveryUpdate().Select(_ => new PinchData());
+        }
     }
 
     public class EditorPinchProvider : PinchProvider
     {
+        protected override Observable<PinchData> SetDoubleTapSubject()
+        {
+            var tapStream = Observable.EveryUpdate()
+                .Select(_ => Touch.activeTouches)
+                .Where(touches => touches.Count() > 0 && touches[0].phase.Equals(TouchPhase.Began))
+                .Select(_ => new PinchData());
 
+            return tapStream;
+        }
+
+        protected override Observable<PinchData> SetHoldSubject()
+        {
+            return Observable.EveryUpdate().Select(_ => (new PinchData()));
+        }
+
+        protected override Observable<PinchData> SetMoveSubject()
+        {
+            return Observable.EveryUpdate().Select(_ => new PinchData());
+        }
+
+        protected override Observable<PinchData> SetTapSubject()
+        {
+            return Observable.EveryUpdate().Select(_ => new PinchData());
+        }
     }
 
     public interface ITapHandler
     {
-        public void OnTap(InputData data);
+        public void OnTap(PinchData data);
     }
 
     public interface IDoubleTapHandler
     {
-        public void OnDoubleTap(InputData data);
+        public void OnDoubleTap(PinchData data);
     }
 
     public interface IDeviceMoveHandler
     {
-        public void OnDeviceMoveBegin();
-        public void OnDeviceMove(InputData data);
-        public void OnDeviceMoveEnd();
+        public void OnDeviceMove(PinchData data);
     }
 
     public interface IHoldHandler
     {
-        public void OnHold(InputData data);
-    }
-
-    public class MRInputEventHelper : MonoBehaviour
-    {
-        private List<Action> actions;
-
-        private void Awake()
-        {
-            actions = new List<Action>();
-        }
-
-        private void OnDestroy()
-        {
-
-        }
+        public void OnHold(PinchData data);
     }
 
     public class PinchData
@@ -233,86 +226,10 @@ namespace Anipen.Subsystem.MRInput
         public MRInputData firstInputData = new();
         public MRInputData secondInputData = new();
 
-        public MRInputPhase inputPhase;
-        public bool IsReadable = false;
         public float holdTime = 0.0f;
         public bool isBoth = false;
+
+        public MRInputPhase inputPhase;
     }
 
-    public class GestureData
-    {
-
-    }
-
-    public class InputData
-    {
-        public PinchData PinchData { get; private set; }
-        public GestureData GestureData { get; private set; }
-
-        public InputData() { }
-        public InputData(PinchData pinchData, GestureData gestureData)
-        {
-            PinchData = pinchData;
-            GestureData = gestureData;
-        }
-    }
-
-    public class PinchDataStream
-    {
-        // change R3?
-        private Queue<PinchData> pinchDatas = new();
-
-        public PinchData ReadStream()
-        {
-            // return pinchDatas.Dequeue();
-            return new PinchData();
-        }
-
-        public async void WriteStream(PinchData data)
-        {
-            await UniTask.Delay(500);
-            pinchDatas.Enqueue(data);
-        }
-
-        public void Clear()
-        {
-
-        }
-
-        private void CheckDoubleTap()
-        {
-
-        }
-
-        private void CheckHold()
-        {
-
-        }
-
-        private void CheckMove()
-        {
-
-        }
-    }
-
-    public class GestureDataStream
-    {
-        private Queue<GestureData> gestureDatas = new();
-
-        public GestureData ReadStream()
-        {
-            // return gestureDatas.Dequeue();
-            return new GestureData();
-        }
-
-        public void WriteStream(GestureData data)
-        {
-            gestureDatas.Enqueue(data);
-        }
-
-        public void Clear()
-        {
-
-        }
-    }
 }

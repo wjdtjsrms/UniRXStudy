@@ -5,15 +5,15 @@ public class MRInputTest : MonoBehaviour, ITapHandler
 {
     private void Start()
     {
-        MRInputManager.Instance.RegistTabEvent(this);
+        MRInputManager.Instance.PinchSubsystem.RegistTabEvent(this);
     }
 
     private void OnDestroy()
     {
-        MRInputManager.Instance?.UnregistTabEvent(this);
+        MRInputManager.Instance?.PinchSubsystem.UnregistTabEvent(this);
     }
 
-    public void OnTap(InputData data)
+    public void OnTap(PinchData data)
     {
         Debug.Log(data);
     }
