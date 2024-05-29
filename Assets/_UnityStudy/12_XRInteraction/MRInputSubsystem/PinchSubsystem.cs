@@ -1,8 +1,8 @@
 namespace Anipen.Subsystem.MRInput
 {
     using Cysharp.Threading.Tasks;
-    using JSGCode.Util;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace Anipen.Subsystem.MRInput
 
     public enum MRInputPhase
     {
-        None, Began, Running, Ended
+        None, Begin, Running, Ended
     }
 
     public enum MRInputType
@@ -30,18 +30,50 @@ namespace Anipen.Subsystem.MRInput
         public Vector3 inputDeviceRotation;
     }
 
-    public class MRInputSubsystem : IDisposable
+    public class GestureSubsystem : IDisposable
+    {
+        private GestureDataStream dataStream;
+
+        public GestureDataStream UpdateDataStream()
+        {
+            return dataStream;
+        }
+
+        public GestureSubsystem(GestureProvider gestureProvider)
+        {
+
+        }
+
+        public void Dispose()
+        {
+
+        }
+
+        public void Start()
+        {
+            Debug.Log("GestureSubsystem Start");
+        }
+
+        public void Stop()
+        {
+            Debug.Log("GestureSubsystem Stop");
+        }
+    }
+
+    public class PinchSubsystem : IDisposable
     {
         private readonly List<ITapHandler> tapHandlers = new();
         private readonly List<IDoubleTapHandler> doubleTapHandlers = new();
         private readonly List<IDeviceMoveHandler> moveHandlers = new();
         private readonly List<IHoldHandler> holdHandlers = new();
 
-        private MRInputProvider inputProvider;
+        private PinchProvider pinchProvider;
+        private PinchDataStream dataStream;
 
-        public MRInputSubsystem(MRInputProvider inputProvider)
+        public PinchSubsystem(PinchProvider pinchProvider)
         {
-            this.inputProvider = inputProvider;
+            this.pinchProvider = pinchProvider;
+            dataStream = new();
         }
 
         public void Dispose()
@@ -50,14 +82,21 @@ namespace Anipen.Subsystem.MRInput
 
         }
 
+        public PinchDataStream UpdateDataStream()
+        {
+
+
+            return dataStream;
+        }
+
         public void Start()
         {
-            Debug.Log("Start");
+            Debug.Log("PinchSubsystem Start");
         }
 
         public void Stop()
         {
-            Debug.Log("Stop");
+            Debug.Log("PinchSubsystem Stop");
         }
 
         #region Regist & Unregist Event
@@ -111,7 +150,22 @@ namespace Anipen.Subsystem.MRInput
         #endregion
     }
 
-    public abstract class MRInputProvider
+    public abstract class GestureProvider
+    {
+
+    }
+
+    public class VisionGestureProvider : GestureProvider
+    {
+
+    }
+
+    public class EditorGestureProvider : GestureProvider
+    {
+
+    }
+
+    public abstract class PinchProvider
     {
         private event Action<MRInputData> TapEvent;
         private event Action<MRInputData> DoubleTapEvent;
@@ -127,38 +181,36 @@ namespace Anipen.Subsystem.MRInput
         protected void CheckDeviceMove() { }
     }
 
-    public class VisionInputProvider : MRInputProvider
+    public class VisionPinchProvider : PinchProvider
     {
 
     }
 
-    public class EditorMRInputProvider : MRInputProvider
+    public class EditorPinchProvider : PinchProvider
     {
 
     }
 
     public interface ITapHandler
     {
-        public void OnTap(MRInputData data);
+        public void OnTap(InputData data);
     }
 
     public interface IDoubleTapHandler
     {
-        public void OnDoubleTap(MRInputData data);
+        public void OnDoubleTap(InputData data);
     }
 
     public interface IDeviceMoveHandler
     {
         public void OnDeviceMoveBegin();
-        public void OnDeviceMove(MRInputData data);
+        public void OnDeviceMove(InputData data);
         public void OnDeviceMoveEnd();
     }
 
     public interface IHoldHandler
     {
-        public void OnHoldBegin(MRInputData data);
-        public void OnHold(MRInputData data, float holdTime);
-        public void OnHoldEnd(MRInputData data);
+        public void OnHold(InputData data);
     }
 
     public class MRInputEventHelper : MonoBehaviour
@@ -180,6 +232,7 @@ namespace Anipen.Subsystem.MRInput
     {
         public MRInputData firstInputData = new();
         public MRInputData secondInputData = new();
+
         public MRInputPhase inputPhase;
         public bool IsReadable = false;
         public float holdTime = 0.0f;
@@ -189,6 +242,19 @@ namespace Anipen.Subsystem.MRInput
     public class GestureData
     {
 
+    }
+
+    public class InputData
+    {
+        public PinchData PinchData { get; private set; }
+        public GestureData GestureData { get; private set; }
+
+        public InputData() { }
+        public InputData(PinchData pinchData, GestureData gestureData)
+        {
+            PinchData = pinchData;
+            GestureData = gestureData;
+        }
     }
 
     public class PinchDataStream
@@ -206,6 +272,11 @@ namespace Anipen.Subsystem.MRInput
         {
             await UniTask.Delay(500);
             pinchDatas.Enqueue(data);
+        }
+
+        public void Clear()
+        {
+
         }
 
         private void CheckDoubleTap()
@@ -237,6 +308,11 @@ namespace Anipen.Subsystem.MRInput
         public void WriteStream(GestureData data)
         {
             gestureDatas.Enqueue(data);
+        }
+
+        public void Clear()
+        {
+
         }
     }
 }

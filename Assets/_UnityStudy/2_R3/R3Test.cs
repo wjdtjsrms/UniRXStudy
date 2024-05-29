@@ -14,7 +14,7 @@ public class R3Test : MonoBehaviour
     void Start()
     {
         SubjectTest();
-       
+        DoubleClick();
     }
 
     private void UpdateObservable()
@@ -38,8 +38,8 @@ public class R3Test : MonoBehaviour
         var clickStream = this.UpdateAsObservable()
             .Where(_ => Input.GetMouseButtonDown(0));
 
-        clickStream.Chunk(clickStream.Debounce(TimeSpan.FromMilliseconds(300)))
-            .Where(x => x.Count() == 2)
+        clickStream.Chunk(clickStream.Debounce(TimeSpan.FromMilliseconds(200)))
+            .Where(x => x.Count() >= 2)
             .SubscribeToText(myText, x => $"Double Clicked! Click Count = {x.Count()}");
     }
 

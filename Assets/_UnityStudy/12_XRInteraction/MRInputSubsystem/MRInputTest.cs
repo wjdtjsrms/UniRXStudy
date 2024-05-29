@@ -3,11 +3,6 @@ using UnityEngine;
 
 public class MRInputTest : MonoBehaviour, ITapHandler
 {
-    public void OnTap(MRInputData data)
-    {
-        Debug.Log(data);
-    }
-
     private void Start()
     {
         MRInputManager.Instance.RegistTabEvent(this);
@@ -16,5 +11,10 @@ public class MRInputTest : MonoBehaviour, ITapHandler
     private void OnDestroy()
     {
         MRInputManager.Instance?.UnregistTabEvent(this);
+    }
+
+    public void OnTap(InputData data)
+    {
+        Debug.Log(data);
     }
 }
