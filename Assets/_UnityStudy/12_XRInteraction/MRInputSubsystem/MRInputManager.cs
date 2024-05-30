@@ -4,11 +4,10 @@ namespace Anipen.Subsystem.MRInput
 
     public class MRInputManager : SingletonMonoBehaviour<MRInputManager>
     {
-        public PinchSubsystem PinchSubsystem { get; private set; }
+        public PinchSubsystem PinchSubsystem { get; private set; } = new();
 
         private void Awake()
         {
-            PinchSubsystem = new PinchSubsystem(new EditorPinchProvider());
             PinchSubsystem.Start();
         }
 
