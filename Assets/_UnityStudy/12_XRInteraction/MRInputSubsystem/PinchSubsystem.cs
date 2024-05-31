@@ -3,6 +3,7 @@ namespace Anipen.Subsystem.MRInput
     using R3;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
 
     public class PinchSubsystem : IDisposable
     {
@@ -11,15 +12,12 @@ namespace Anipen.Subsystem.MRInput
         private readonly List<IDeviceMoveHandler> moveHandlers = new();
         private readonly List<IHoldHandler> holdHandlers = new();
 
-        private IDisposable tapDisposable;
-        private IDisposable doubleTapDisposable;
-        private IDisposable moveDisposable;
-        private IDisposable holdDisposable;
+        private readonly CancellationTokenSource cancellationTokenSource = new();
 
-#if UNITY_EDITOR
-        private readonly PinchProvider pinchProvider = new EditorPinchProvider();
+#if UNITY_EDITOR_WIN
+        private readonly PinchProvider pinchProvider = new WindowPinchProvider();
 #else
-        private readonly PinchProvider pinchProvider = new VisionPinchProvider();
+        private readonly PinchProvider pinchProvider = new VisionOSPinchProvider();
 #endif
 
         public void Dispose()
@@ -29,19 +27,22 @@ namespace Anipen.Subsystem.MRInput
 
         public virtual void Start()
         {
-            tapDisposable = pinchProvider.OnTapSubject.Subscribe((data) => tapHandlers.ForEach((item) => item.OnTap(data)));
-            doubleTapDisposable = pinchProvider.OnDoubleTapSubject.Subscribe((data) => doubleTapHandlers.ForEach((item) => item.OnDoubleTap(data)));
-            moveDisposable = pinchProvider.OnMoveSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceMove(data)));
-            holdDisposable = pinchProvider.OnHoldSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHold(data)));
+            pinchProvider.Start();
+
+            var d = Disposable.CreateBuilder();
+
+            pinchProvider.OnTapSubject.Subscribe((data) => tapHandlers.ForEach((item) => item.OnTap(data))).AddTo(ref d);
+            pinchProvider.OnDoubleTapSubject.Subscribe((data) => doubleTapHandlers.ForEach((item) => item.OnDoubleTap(data))).AddTo(ref d);
+            pinchProvider.OnMoveSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceMove(data))).AddTo(ref d);
+            pinchProvider.OnHoldSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHold(data))).AddTo(ref d);
+
+            d.RegisterTo(cancellationTokenSource.Token);
         }
 
         public virtual void Stop()
         {
             pinchProvider?.Dispose();
-            tapDisposable?.Dispose();
-            doubleTapDisposable?.Dispose();
-            moveDisposable?.Dispose();
-            holdDisposable?.Dispose();
+            cancellationTokenSource?.Cancel();
         }
 
         #region Regist & Unregist Method
