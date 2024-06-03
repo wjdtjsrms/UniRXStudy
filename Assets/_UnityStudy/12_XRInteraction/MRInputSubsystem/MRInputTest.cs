@@ -36,6 +36,6 @@ public class MRInputTest : MonoBehaviour, ITapHandler, IDoubleTapHandler, IHoldH
 
     public void OnDeviceMove(PinchData data)
     {
-        //Debug.Log("OnDeviceMove");
+        Debug.Log("OnDeviceMove");
     }
 }

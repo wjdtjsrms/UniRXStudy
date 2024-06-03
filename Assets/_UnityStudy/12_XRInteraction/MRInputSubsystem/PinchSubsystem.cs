@@ -30,7 +30,6 @@ namespace Anipen.Subsystem.MRInput
             pinchProvider.Start();
 
             var d = Disposable.CreateBuilder();
-
             pinchProvider.OnTapSubject.Subscribe((data) => tapHandlers.ForEach((item) => item.OnTap(data))).AddTo(ref d);
             pinchProvider.OnDoubleTapSubject.Subscribe((data) => doubleTapHandlers.ForEach((item) => item.OnDoubleTap(data))).AddTo(ref d);
             pinchProvider.OnMoveSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceMove(data))).AddTo(ref d);
