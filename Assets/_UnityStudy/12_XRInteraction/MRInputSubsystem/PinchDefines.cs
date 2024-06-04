@@ -29,12 +29,16 @@ namespace Anipen.Subsystem.MRInput
 
     public interface IDeviceMoveHandler
     {
+        public void OnDeviceStart(PinchData data);
         public void OnDeviceMove(PinchData data);
+        public void OnDeviceEnd(PinchData data);
     }
 
     public interface IHoldHandler
     {
+        public void OnHoldStart(PinchData data);
         public void OnHold(PinchData data);
+        public void OnHoldEnd(PinchData data);
     }
 
     public class MRInputData

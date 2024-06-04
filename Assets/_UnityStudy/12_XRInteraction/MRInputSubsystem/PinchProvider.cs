@@ -6,7 +6,6 @@ namespace Anipen.Subsystem.MRInput
     using System.Linq;
     using System.Threading;
     using UnityEngine;
-    using UnityEngine.Networking;
 
     public abstract class PinchProvider : IDisposable
     {
@@ -15,116 +14,56 @@ namespace Anipen.Subsystem.MRInput
 
         public Observable<PinchData> OnTapSubject { get; private set; }
         public Observable<PinchData> OnDoubleTapSubject { get; private set; }
+
+        public Observable<PinchData> OnMoveStartSubject { get; private set; }
         public Observable<PinchData> OnMoveSubject { get; private set; }
+        public Observable<PinchData> OnMoveEndSubject { get; private set; }
+
+        public Observable<PinchData> OnHoldStartSubject { get; private set; }
         public Observable<PinchData> OnHoldSubject { get; private set; }
+        public Observable<PinchData> OnHoldEndSubject { get; private set; }
 
         public virtual void Start()
         {
             OnTapSubject = GetTapStream();
             OnDoubleTapSubject = GetDoubleTapStream();
+
+            OnMoveStartSubject = GetMoveStartStream();
             OnMoveSubject = GetMoveStream();
+            OnMoveEndSubject = GetMoveEndStream();
+
+            OnHoldStartSubject = GetHoldStartStream();
             OnHoldSubject = GetHoldStream();
+            OnHoldEndSubject = GetHoldEndStream();
         }
 
         public virtual void Dispose() { }
 
         protected abstract Observable<PinchData> GetTapStream();
         protected abstract Observable<PinchData> GetDoubleTapStream();
+
+        protected abstract Observable<PinchData> GetMoveStartStream();
         protected abstract Observable<PinchData> GetMoveStream();
+        protected abstract Observable<PinchData> GetMoveEndStream();
+
+        protected abstract Observable<PinchData> GetHoldStartStream();
         protected abstract Observable<PinchData> GetHoldStream();
+        protected abstract Observable<PinchData> GetHoldEndStream();
     }
 
-    public class SiliconMacPinchProvider : PinchProvider
-    {
-        protected override Observable<PinchData> GetDoubleTapStream()
-        {
-            return Observable.EveryUpdate().Select(_ => new PinchData());
-        }
-
-        protected override Observable<PinchData> GetHoldStream()
-        {
-            return Observable.EveryUpdate().Select(_ => new PinchData());
-        }
-
-        protected override Observable<PinchData> GetMoveStream()
-        {
-            return Observable.EveryUpdate().Select(_ => new PinchData());
-        }
-
-        protected override Observable<PinchData> GetTapStream()
-        {
-            return Observable.EveryUpdate().Select(_ => new PinchData());
-        }
-    }
-
-    public class VisionOSPinchProvider : PinchProvider
-    {
-        protected override Observable<PinchData> GetDoubleTapStream()
-        {
-            return Observable.EveryUpdate().Select(_ => new PinchData());
-        }
-
-        protected override Observable<PinchData> GetHoldStream()
-        {
-            return Observable.EveryUpdate().Select(_ => new PinchData());
-        }
-
-        protected override Observable<PinchData> GetMoveStream()
-        {
-            return Observable.EveryUpdate().Select(_ => new PinchData());
-        }
-
-        protected override Observable<PinchData> GetTapStream()
-        {
-            return Observable.EveryUpdate().Select(_ => new PinchData());
-        }
-    }
+    //public class VisionOSPinchProvider : PinchProvider
+    //{
+    //}
 
     public class WindowPinchProvider : PinchProvider
     {
+        private bool isHold = false;
+        private bool isMove = false;
+
+        #region Tap Stream
         protected override Observable<PinchData> GetTapStream() => GetMultiTapStream(targetTapCount: 1);
 
         protected override Observable<PinchData> GetDoubleTapStream() => GetMultiTapStream(targetTapCount: 2);
-
-        protected override Observable<PinchData> GetHoldStream()
-        {
-            var tapStream = Observable.EveryUpdate().Where(_ => Input.GetMouseButtonDown(0));
-
-            var tapBufferStream = tapStream
-            .WhereAwait(async (_, ct) => await HoldCheck(waitSeconds: 1.0f, ct), AwaitOperation.Switch)
-            .Select(tapInput => new PinchData());
-
-            return tapBufferStream;
-
-            static async UniTask<bool> HoldCheck(float waitSeconds, CancellationToken ct)
-            {
-                var currentTime = 0f;
-
-                while (!ct.IsCancellationRequested && currentTime < waitSeconds)
-                {
-                    if (Input.GetMouseButtonUp(0))
-                        return false;
-
-                    await UniTask.Yield();
-                    currentTime += Time.deltaTime;
-
-                    if (Input.mousePositionDelta.sqrMagnitude > 0.05f)
-                        currentTime = 0f;
-                }
-
-                return true;
-            }
-        }
-
-        protected override Observable<PinchData> GetMoveStream()
-        {
-            var tapStream = Observable.EveryUpdate().Where(_ => Input.GetMouseButton(0)).Select(tapInput => new PinchData()); ;
-
-            tapStream = tapStream
-            .Where(_ => Input.mousePositionDelta.sqrMagnitude > 0.05f);
-
-            return tapStream;
-        }
 
         private Observable<PinchData> GetMultiTapStream(int targetTapCount)
         {
@@ -145,5 +84,131 @@ namespace Anipen.Subsystem.MRInput
 
             return tapBufferStream;
         }
+        #endregion
+
+        #region Move Stream
+        protected override Observable<PinchData> GetMoveStartStream()
+        {
+            var tapStream = Observable.EveryUpdate()
+                .Where(_ => Input.GetMouseButton(0) && !isMove)
+                .Where(_ => Input.mousePositionDelta.sqrMagnitude > 0.05f)
+                .Select(_ =>
+                {
+
+                    isMove = true;
+                    return new PinchData();
+                });
+
+            return tapStream;
+        }
+
+        protected override Observable<PinchData> GetMoveStream()
+        {
+            var tapStream = Observable.EveryUpdate()
+               .Where(_ => Input.GetMouseButton(0) && isMove)
+               .Where(_ => Input.mousePositionDelta.sqrMagnitude > 0.05f)
+               .Select(_ =>
+               {
+
+                   return new PinchData();
+               });
+
+            return tapStream;
+        }
+
+        protected override Observable<PinchData> GetMoveEndStream()
+        {
+            var holdStream = Observable.EveryUpdate()
+            .Where(_ => isMove && Input.GetMouseButtonDown(0))
+            .WhereAwait(async (_, ct) => await HoldCheck(waitSeconds: 1.0f, ct), AwaitOperation.Switch)
+            .Select(_ => new PinchData());
+
+            var t = Observable.EveryUpdate()
+               .Where(_ => isMove && Input.GetMouseButtonUp(0))
+                           .Select(_ => new PinchData()); ;
+
+            var tapStream2 = holdStream.Merge(t);
+
+            var tapStream = tapStream2
+               .Select(_ =>
+               {
+                   isMove = false;
+                   return new PinchData();
+
+               });
+
+            return tapStream;
+        }
+        #endregion
+
+        #region Hold Stream
+        protected override Observable<PinchData> GetHoldStartStream()
+        {
+            // action으로 hold percent 받기
+
+            var tapStream = Observable.EveryUpdate()
+                .Where(_ => Input.GetMouseButtonDown(0) && !isHold)
+                .WhereAwait(async (_, ct) => await HoldCheck(waitSeconds: 1.0f, ct), AwaitOperation.Switch)
+                .Select(_ =>
+                {
+                    isHold = true;
+                    return new PinchData();
+                });
+
+            return tapStream;
+        }
+
+        protected override Observable<PinchData> GetHoldStream()
+        {
+            var tapStream = Observable.EveryUpdate()
+                .Where(_ => Input.GetMouseButton(0) && isHold)
+                .Select(tapInput =>
+                {
+
+                    return new PinchData();
+                });
+
+            return tapStream;
+        }
+
+        protected override Observable<PinchData> GetHoldEndStream()
+        {
+            var holdStream = Observable.EveryUpdate()
+                .Where(_ => Input.GetMouseButton(0) && isHold)
+                .Where(_ => Input.mousePositionDelta.sqrMagnitude > 0.05f);
+
+            var holdUpStream = Observable.EveryUpdate()
+                .Where(_ => Input.GetMouseButtonUp(0) && isHold);
+
+            var tapStream = holdStream.Merge(holdUpStream)
+                .Select(_ =>
+                {
+
+                    isHold = false;
+                    return new PinchData();
+                });
+
+            return tapStream;
+        }
+
+        private async UniTask<bool> HoldCheck(float waitSeconds, CancellationToken ct)
+        {
+            var currentTime = 0f;
+
+            while (!ct.IsCancellationRequested && currentTime < waitSeconds)
+            {
+                if (Input.GetMouseButtonUp(0))
+                    return false;
+
+                await UniTask.Yield();
+                currentTime += Time.deltaTime;
+
+                if (Input.mousePositionDelta.sqrMagnitude > 0.05f)
+                    currentTime = 0f;
+            }
+
+            return true;
+        }
+        #endregion
     }
 }

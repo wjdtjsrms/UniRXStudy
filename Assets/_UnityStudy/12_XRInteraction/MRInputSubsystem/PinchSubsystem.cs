@@ -32,8 +32,14 @@ namespace Anipen.Subsystem.MRInput
             var d = Disposable.CreateBuilder();
             pinchProvider.OnTapSubject.Subscribe((data) => tapHandlers.ForEach((item) => item.OnTap(data))).AddTo(ref d);
             pinchProvider.OnDoubleTapSubject.Subscribe((data) => doubleTapHandlers.ForEach((item) => item.OnDoubleTap(data))).AddTo(ref d);
+
+            pinchProvider.OnMoveStartSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceStart(data))).AddTo(ref d);
             pinchProvider.OnMoveSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceMove(data))).AddTo(ref d);
+            pinchProvider.OnMoveEndSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceEnd(data))).AddTo(ref d);
+
+            pinchProvider.OnHoldStartSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHoldStart(data))).AddTo(ref d);
             pinchProvider.OnHoldSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHold(data))).AddTo(ref d);
+            pinchProvider.OnHoldEndSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHoldEnd(data))).AddTo(ref d);
 
             d.RegisterTo(cancellationTokenSource.Token);
         }

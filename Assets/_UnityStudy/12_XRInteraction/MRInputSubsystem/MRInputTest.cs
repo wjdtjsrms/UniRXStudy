@@ -38,4 +38,24 @@ public class MRInputTest : MonoBehaviour, ITapHandler, IDoubleTapHandler, IHoldH
     {
         Debug.Log("OnDeviceMove");
     }
+
+    public void OnHoldStart(PinchData data)
+    {
+        Debug.Log("Hold Start");
+    }
+
+    public void OnHoldEnd(PinchData data)
+    {
+        Debug.Log("Hold End");
+    }
+
+    public void OnDeviceStart(PinchData data)
+    {
+        Debug.Log("MoveStart");
+    }
+
+    public void OnDeviceEnd(PinchData data)
+    {
+        Debug.Log("MoveEnd");
+    }
 }
