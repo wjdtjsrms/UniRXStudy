@@ -12,11 +12,6 @@ namespace Anipen.Subsystem.MRInput
         None, Begin, Running, End
     }
 
-    public enum MRInputType
-    {
-        None, Tap, DoubleTap, Hold, Move
-    }
-
     public interface ITapHandler
     {
         public void OnTap(PinchData data);
@@ -45,16 +40,14 @@ namespace Anipen.Subsystem.MRInput
     {
         public GameObject targetObject;
         public MRInputKind kind;
-        public MRInputType type;
         public Vector3 inputDevicePosition;
         public Vector3 inputDeviceRotation;
     }
 
     public class PinchData
     {
-        public MRInputData firstInputData = new();
-        public MRInputData secondInputData = new();
-
-        public MRInputPhase inputPhase;
+        public MRInputData inputData = new();
+        public MRInputPhase inputPhase = MRInputPhase.None;
+        public bool isPrimaryData = true;
     }
 }
