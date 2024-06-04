@@ -29,17 +29,17 @@ public class MRInputTest : MonoBehaviour, ITapHandler, IDoubleTapHandler, IHoldH
         Debug.Log("OnDoubleTap");
     }
 
-    public void OnHold(PinchData data)
+    public void OnHolding(PinchData data)
     {
         Debug.Log("OnHold");
     }
 
-    public void OnDeviceMove(PinchData data)
+    public void OnMoving(PinchData data)
     {
-        Debug.Log("OnDeviceMove");
+        Debug.Log("OnMoving");
     }
 
-    public void OnHoldStart(PinchData data)
+    public void OnHoldBegin(PinchData data)
     {
         Debug.Log("Hold Start");
     }
@@ -49,12 +49,12 @@ public class MRInputTest : MonoBehaviour, ITapHandler, IDoubleTapHandler, IHoldH
         Debug.Log("Hold End");
     }
 
-    public void OnDeviceStart(PinchData data)
+    public void OnMoveBegin(PinchData data)
     {
         Debug.Log("MoveStart");
     }
 
-    public void OnDeviceEnd(PinchData data)
+    public void OnMoveEnd(PinchData data)
     {
         Debug.Log("MoveEnd");
     }

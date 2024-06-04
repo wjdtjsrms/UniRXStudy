@@ -27,19 +27,45 @@ namespace Anipen.Subsystem.MRInput
 
         public virtual void Start()
         {
+            var d = Disposable.CreateBuilder();
+
             pinchProvider.Start();
 
-            var d = Disposable.CreateBuilder();
             pinchProvider.OnTapSubject.Subscribe((data) => tapHandlers.ForEach((item) => item.OnTap(data))).AddTo(ref d);
             pinchProvider.OnDoubleTapSubject.Subscribe((data) => doubleTapHandlers.ForEach((item) => item.OnDoubleTap(data))).AddTo(ref d);
 
-            pinchProvider.OnMoveStartSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceStart(data))).AddTo(ref d);
-            pinchProvider.OnMoveSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceMove(data))).AddTo(ref d);
-            pinchProvider.OnMoveEndSubject.Subscribe((data) => moveHandlers.ForEach((item) => item.OnDeviceEnd(data))).AddTo(ref d);
+            pinchProvider.OnMoveSubject.Subscribe((data) => 
+            {
+                switch(data.inputPhase)
+                {
+                    case MRInputPhase.Begin:
+                        moveHandlers.ForEach((item) => item.OnMoveBegin(data));
+                        break;
+                    case MRInputPhase.Running:
+                        moveHandlers.ForEach((item) => item.OnMoving(data));
+                        break;
+                    case MRInputPhase.End:
+                        moveHandlers.ForEach((item) => item.OnMoveEnd(data));
+                        break;
+                }
+            }).AddTo(ref d);
 
-            pinchProvider.OnHoldStartSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHoldStart(data))).AddTo(ref d);
-            pinchProvider.OnHoldSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHold(data))).AddTo(ref d);
-            pinchProvider.OnHoldEndSubject.Subscribe((data) => holdHandlers.ForEach((item) => item.OnHoldEnd(data))).AddTo(ref d);
+            pinchProvider.OnHoldSubject.Subscribe((data) =>
+            {
+                switch (data.inputPhase)
+                {
+                    case MRInputPhase.Begin:
+                        holdHandlers.ForEach((item) => item.OnHoldBegin(data));
+                        break;
+                    case MRInputPhase.Running:
+                        holdHandlers.ForEach((item) => item.OnHolding(data));
+                        break;
+                    case MRInputPhase.End:
+                        holdHandlers.ForEach((item) => item.OnHoldEnd(data));
+                        break;
+                }
+               
+            }).AddTo(ref d);
 
             d.RegisterTo(cancellationTokenSource.Token);
         }

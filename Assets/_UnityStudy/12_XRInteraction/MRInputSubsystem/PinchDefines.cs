@@ -9,7 +9,7 @@ namespace Anipen.Subsystem.MRInput
 
     public enum MRInputPhase
     {
-        None, Begin, Running, Ended
+        None, Begin, Running, End
     }
 
     public enum MRInputType
@@ -29,15 +29,15 @@ namespace Anipen.Subsystem.MRInput
 
     public interface IDeviceMoveHandler
     {
-        public void OnDeviceStart(PinchData data);
-        public void OnDeviceMove(PinchData data);
-        public void OnDeviceEnd(PinchData data);
+        public void OnMoveBegin(PinchData data);
+        public void OnMoving(PinchData data);
+        public void OnMoveEnd(PinchData data);
     }
 
     public interface IHoldHandler
     {
-        public void OnHoldStart(PinchData data);
-        public void OnHold(PinchData data);
+        public void OnHoldBegin(PinchData data);
+        public void OnHolding(PinchData data);
         public void OnHoldEnd(PinchData data);
     }
 
@@ -54,9 +54,6 @@ namespace Anipen.Subsystem.MRInput
     {
         public MRInputData firstInputData = new();
         public MRInputData secondInputData = new();
-
-        public float holdTime = 0.0f;
-        public bool isBoth = false;
 
         public MRInputPhase inputPhase;
     }
